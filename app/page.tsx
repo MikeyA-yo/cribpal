@@ -22,24 +22,37 @@ export default function Home() {
       <Navbar />
       {/* Hero Section */}
       <motion.section
-        className="w-full flex flex-col items-center justify-center px-4 py-24 text-center mb-16"
+        className="relative w-full flex flex-col items-center justify-center px-4 py-24 text-center mb-16 overflow-hidden"
         style={{ background: `linear-gradient(135deg, ${COLORS.skyBlue} 0%, ${COLORS.primary} 100%)` }}
         initial={{ opacity: 0, y: -40 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7 }}
       >
-        <h1 className="text-4xl sm:text-5xl font-extrabold mb-4" style={{ color: COLORS.offWhite }}>
-          Find a Hostel Without the Stress.<br />
-          <span className="text-xl sm:text-2xl font-semibold block mt-2" style={{ color: COLORS.cloud }}>
-            No agents. No scams. Just verified, affordable spaces near campus.
-          </span>
-        </h1>
-        <p className="max-w-xl mx-auto text-lg sm:text-xl mb-8" style={{ color: COLORS.cloud }}>
-          CribPal is the easiest way for Unilag students to find off-campus accommodation — safely, transparently, and 100% student-focused.
-        </p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <a href="#" className="px-8 py-3 rounded-full font-bold text-lg transition-colors shadow-md hover:scale-105 hover:shadow-lg duration-200" style={{ background: COLORS.offWhite, color: COLORS.primary }}>Get Started</a>
-          <a href="#" className="px-8 py-3 rounded-full font-bold text-lg transition-colors border-2 hover:scale-105 hover:shadow-lg duration-200" style={{ color: COLORS.offWhite, borderColor: COLORS.offWhite }}>Browse Listings</a>
+        {/* Hero background image, only on md+ screens */}
+        <div className="hidden md:block absolute right-0 top-0 h-full w-1/3 z-0">
+          <img
+            src="/cgstds.jpg"
+            alt="Students"
+            className="h-full w-full object-cover rounded-l-[100vw] shadow-xl"
+            style={{ borderTopLeftRadius: '100vw', borderBottomLeftRadius: '100vw' }}
+          />
+        </div>
+        <div className="relative z-10 flex flex-col items-center justify-center  w-full md:w-2/3 mx-auto">
+          <h1
+            className="text-4xl sm:text-5xl font-extrabold mb-4 bg-gradient-to-r from-white to-[#0B1E3F] -translate-y-10 bg-clip-text text-transparent"
+          >
+            Find a Hostel Without the Stress.<br />
+            <span className="text-xl sm:text-2xl font-semibold block mt-2 text-white">
+              No agents. No scams. Just verified, affordable spaces near campus.
+            </span>
+          </h1>
+          <p className="max-w-xl mx-auto text-lg sm:text-xl mb-8" style={{ color: COLORS.cloud }}>
+            CribPal is the easiest way for Unilag students to find off-campus accommodation — safely, transparently, and 100% student-focused.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="#" className="px-8 py-3 rounded-full font-bold text-lg transition-colors shadow-md hover:scale-105 hover:shadow-lg duration-200" style={{ background: COLORS.offWhite, color: COLORS.primary }}>Get Started</a>
+            <a href="#" className="px-8 py-3 rounded-full font-bold text-lg transition-colors border-2 hover:scale-105 hover:shadow-lg duration-200" style={{ color: COLORS.offWhite, borderColor: COLORS.offWhite }}>Browse Listings</a>
+          </div>
         </div>
       </motion.section>
 
