@@ -2,6 +2,7 @@
 import Image from "next/image";
 import Navbar from "../components/Navbar";
 import { motion } from "motion/react";
+import BlueParticlesBg from "../components/BlueParticlesBg";
 
 // Color palette
 const COLORS = {
@@ -19,6 +20,7 @@ const COLORS = {
 export default function Home() {
   return (
     <div className="min-h-screen flex flex-col" style={{ background: COLORS.offWhite }}>
+      <BlueParticlesBg />
       <Navbar />
       {/* Hero Section */}
       <motion.section
@@ -148,8 +150,7 @@ export default function Home() {
         viewport={{ once: true, amount: 0.3 }}
         transition={{ duration: 0.7 }}
       >
-        {/* For Students Card */}
-        <div className="w-full bg-white rounded-xl shadow-md p-8 flex flex-col gap-4 transition-transform transition-shadow duration-200 hover:shadow-2xl hover:-translate-y-1">
+        <div className="w-full bg-white rounded-xl shadow-md p-8 flex flex-col gap-4 transition-shadow duration-200 hover:shadow-2xl hover:-translate-y-1">
           <h3 className="text-2xl font-bold mb-2" style={{ color: COLORS.primary }}>For Students</h3>
           <ul className="list-disc list-inside text-base flex flex-col gap-2" style={{ color: COLORS.graphite }}>
             <li>Browse and filter verified hostels near campus</li>
@@ -157,10 +158,10 @@ export default function Home() {
             <li>Book or schedule inspections online—no agents needed</li>
             <li>Secure payment and refund options</li>
           </ul>
-          <a href="#" className="mt-4 inline-block px-6 py-2 rounded-full font-semibold transition-colors shadow-md hover:scale-105 hover:shadow-lg duration-200" style={{ background: COLORS.primary, color: COLORS.offWhite }}>Find a Room</a>
+          <a href="/forstudents" className="mt-4 inline-block px-6 py-2 rounded-full font-semibold transition-colors shadow-md hover:scale-105 hover:shadow-lg duration-200" style={{ background: COLORS.primary, color: COLORS.offWhite }}>Find a Room</a>
         </div>
         {/* For Hostel Owners Card */}
-        <div className="w-full bg-white rounded-xl shadow-md p-8 flex flex-col gap-4 transition-transform transition-shadow duration-200 hover:shadow-2xl hover:-translate-y-1">
+        <div className="w-full bg-white rounded-xl shadow-md p-8 flex flex-col gap-4 transition-transform duration-200 hover:shadow-2xl hover:-translate-y-1">
           <h2 className="text-2xl font-bold mb-2" style={{ color: COLORS.darkBlue }}>For Hostel Owners</h2>
           <p className="text-lg mb-4" style={{ color: COLORS.graphite }}>
             Got space to rent?<br />
@@ -171,7 +172,7 @@ export default function Home() {
             <li>• Set availability and prices</li>
             <li>• Manage bookings easily</li>
           </ul>
-          <a href="#" className="px-6 py-2 rounded-full font-semibold transition-colors shadow-md hover:scale-105 hover:shadow-lg duration-200" style={{ background: COLORS.offWhite, color: COLORS.primary, border: `2px solid ${COLORS.primary}` }}>List Your Hostel Now</a>
+          <a href="/forhostelowners" className="px-6 py-2 rounded-full font-semibold transition-colors shadow-md hover:scale-105 hover:shadow-lg duration-200" style={{ background: COLORS.offWhite, color: COLORS.primary, border: `2px solid ${COLORS.primary}` }}>List Your Hostel Now</a>
         </div>
       </motion.section>
 
@@ -187,7 +188,7 @@ export default function Home() {
         <h2 className="text-3xl font-bold text-center mb-8" style={{ color: COLORS.darkBlue }}>Student Testimonials</h2>
         <div className="flex flex-col md:flex-row gap-8">
           <motion.div
-            className="flex-1 bg-white rounded-xl shadow-md p-6 flex flex-col gap-2 transition-transform transition-shadow duration-200 hover:shadow-2xl hover:-translate-y-1"
+            className="flex-1 bg-white rounded-xl shadow-md p-6 flex flex-col gap-2 transition-transform duration-200 hover:shadow-2xl hover:-translate-y-1"
             style={{ border: `1.5px solid ${COLORS.cloud}` }}
             initial={{ opacity: 0, x: -40 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -200,7 +201,7 @@ export default function Home() {
             <div className="font-semibold mt-2" style={{ color: COLORS.darkBlue }}>— Bola, 300L Student, Unilag</div>
           </motion.div>
           <motion.div
-            className="flex-1 bg-white rounded-xl shadow-md p-6 flex flex-col gap-2 transition-transform transition-shadow duration-200 hover:shadow-2xl hover:-translate-y-1"
+            className="flex-1 bg-white rounded-xl shadow-md p-6 flex flex-col gap-2 transition-shadow duration-200 hover:shadow-2xl hover:-translate-y-1"
             style={{ border: `1.5px solid ${COLORS.cloud}` }}
             initial={{ opacity: 0, x: 40 }}
             whileInView={{ opacity: 1, x: 0 }}
