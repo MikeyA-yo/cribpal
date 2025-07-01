@@ -1,63 +1,81 @@
+import Image from "next/image";
+import { FaGoogle, FaFacebook } from "react-icons/fa";
 
-import Image from 'next/image';
-import { FaGoogle, FaFacebook } from 'react-icons/fa';
+const COLORS = {
+  primary: "#007BFF",
+  darkBlue: "#0B1E3F",
+  offWhite: "#F9FBFF",
+  cloud: "#E5E8EC",
+  green: "#2ECC71",
+};
 
 const StudentSignIn = () => {
   return (
-    <div className="flex flex-col md:flex-row items-center justify-center bg-white p-8 rounded-lg shadow-md">
-      <div className="md:w-1/2">
-        <Image src="/cgstd.jpg" alt="Students" width={400} height={400} className="rounded-lg" />
-      </div>
-      <div className="md:w-1/2 md:pl-8">
-        <h2 className="text-2xl font-bold mb-4">Student Sign In</h2>
-        <form>
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
-              Email
-            </label>
-            <input
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              id="email"
-              type="email"
-              placeholder="Email"
-            />
-          </div>
-          <div className="mb-6">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">
-              Password
-            </label>
-            <input
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
-              id="password"
-              type="password"
-              placeholder="******************"
-            />
-          </div>
-          <div className="flex items-center justify-between">
-            <button
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-              type="button"
-            >
-              Sign In
+    <div className="min-h-screen flex flex-col w-full md:flex-row">
+      {/* Left: Sign In Form */}
+      <div className="flex-1 flex flex-col justify-center items-center bg-[#F9FBFF] px-6 py-12">
+        <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-8">
+          <h2 className="text-3xl font-mono font-extrabold mb-6 text-[#0B1E3F] text-center">Student Sign In</h2>
+          <form className="space-y-6">
+            <div>
+              <label className="block text-[#0B1E3F] text-sm font-mono font-semibold mb-2" htmlFor="email">
+                Email
+              </label>
+              <input
+                className="appearance-none border border-[#E5E8EC] rounded-lg w-full py-3 px-4 text-[#1E1E2F] bg-[#F9FBFF] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#007BFF] focus:border-transparent transition font-mono"
+                id="email"
+                type="email"
+                placeholder="Email"
+              />
+            </div>
+            <div>
+              <label className="block text-[#0B1E3F] text-sm font-mono font-semibold mb-2" htmlFor="password">
+                Password
+              </label>
+              <input
+                className="appearance-none border border-[#E5E8EC] rounded-lg w-full py-3 px-4 text-[#1E1E2F] bg-[#F9FBFF] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#007BFF] focus:border-transparent transition font-mono"
+                id="password"
+                type="password"
+                placeholder="Password"
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <button
+                className="bg-[#007BFF] hover:bg-[#0B1E3F] text-white font-bold py-3 px-6 rounded-full transition-all duration-200 shadow-md hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[#007BFF] font-mono"
+                type="button"
+              >
+                Sign In
+              </button>
+              <a className="font-semibold text-sm text-[#007BFF] hover:text-[#0B1E3F] transition font-mono" href="#">
+                Forgot Password?
+              </a>
+            </div>
+          </form>
+          {/* Social Sign In Buttons */}
+          <div className="mt-8 flex flex-col gap-3">
+            <button className="w-full flex items-center justify-center gap-2 border border-[#2ECC71] bg-transparent text-[#2ECC71] font-bold py-3 px-6 rounded-full transition-all duration-200 hover:bg-[#2ECC71]/10 hover:scale-105">
+              <FaGoogle className="text-lg" /> Sign in with Google
             </button>
-            <a className="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800" href="#">
-              Forgot Password?
-            </a>
+            <button className="w-full flex items-center justify-center gap-2 border border-[#007BFF] bg-transparent text-[#007BFF] font-bold py-3 px-6 rounded-full transition-all duration-200 hover:bg-[#007BFF]/10 hover:scale-105">
+              <FaFacebook className="text-lg" /> Sign in with Facebook
+            </button>
           </div>
-        </form>
-        <div className="mt-4">
-          <p className="text-center text-gray-500 text-xs">&copy;2025 CribPal. All rights reserved.</p>
+          <div className="mt-8">
+            <p className="text-center text-gray-400 text-xs font-mono">&copy;2025 CribPal. All rights reserved.</p>
+          </div>
         </div>
-        <div className="flex items-center justify-center mt-4">
-          <button className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-full flex items-center">
-            <FaGoogle className="mr-2" /> Sign in with Google
-          </button>
-        </div>
-        <div className="flex items-center justify-center mt-4">
-          <button className="bg-blue-800 hover:bg-blue-900 text-white font-bold py-2 px-4 rounded-full flex items-center">
-            <FaFacebook className="mr-2" /> Sign in with Facebook
-          </button>
-        </div>
+      </div>
+      {/* Right: Image */}
+      <div className="flex-1 relative min-h-[300px] md:min-h-0 h-64 md:h-auto">
+        <Image
+          src="/cgstd.jpg"
+          alt="Students"
+          fill
+          className="object-cover w-full h-full md:rounded-l-3xl"
+          priority
+        />
+        {/* Overlay for better contrast on mobile */}
+        <div className="absolute inset-0 bg-gradient-to-t md:bg-none from-[#0B1E3F]/60 to-transparent md:from-transparent" />
       </div>
     </div>
   );
