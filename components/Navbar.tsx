@@ -22,8 +22,8 @@ export default function Navbar() {
       </div>
       {/* Desktop Links */}
       <div className="hidden md:flex gap-6 items-center">
-        <Link href="#students" className="font-medium transition-colors" style={{ color: '#F9FBFF' }}>For Students</Link>
-        <Link href="#owners" className="font-medium transition-colors" style={{ color: '#F9FBFF' }}>For Hostel Owners</Link>
+        <Link href="/forstudents" className="font-medium transition-colors" style={{ color: '#F9FBFF' }}>For Students</Link>
+        <Link href="/forhostelowners" className="font-medium transition-colors" style={{ color: '#F9FBFF' }}>For Hostel Owners</Link>
         <Link href="#" className="px-4 py-2 rounded-full font-semibold transition-colors" style={{ background: '#F9FBFF', color: '#007BFF' }}>Get Started</Link>
       </div>
       {/* Mobile Hamburger */}
@@ -46,8 +46,8 @@ export default function Navbar() {
             backdropFilter: "blur(12px)",
           }}
         >
-          <Link href="#students" className="font-medium transition-colors" style={{ color: '#F9FBFF' }} onClick={() => setOpen(false)}>For Students</Link>
-          <Link href="#owners" className="font-medium transition-colors" style={{ color: '#F9FBFF' }} onClick={() => setOpen(false)}>For Hostel Owners</Link>
+          <Link href="/forstudents" className="font-medium transition-colors" style={{ color: '#F9FBFF' }} onClick={() => setOpen(false)}>For Students</Link>
+          <Link href="/forhostelowners" className="font-medium transition-colors" style={{ color: '#F9FBFF' }} onClick={() => setOpen(false)}>For Hostel Owners</Link>
           <Link href="#" className="px-4 py-2 rounded-full font-semibold transition-colors" style={{ background: '#F9FBFF', color: '#007BFF' }} onClick={() => setOpen(false)}>Get Started</Link>
         </div>
       )}

@@ -52,7 +52,8 @@ export default function Home() {
             CribPal is the easiest way for Unilag students to find off-campus accommodation — safely, transparently, and 100% student-focused.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a href="#" className="px-8 py-3 rounded-full font-bold text-lg transition-colors shadow-md hover:scale-105 hover:shadow-lg duration-200" style={{ background: COLORS.offWhite, color: COLORS.primary }}>Get Started</a>
+            <a href="/forstudents" className="px-8 py-3 rounded-full font-bold text-lg transition-colors shadow-md hover:scale-105 hover:shadow-lg duration-200" style={{ background: COLORS.offWhite, color: COLORS.primary }}>I'm a Student</a>
+            <a href="/forhostelowners" className="px-8 py-3 rounded-full font-bold text-lg transition-colors shadow-md hover:scale-105 hover:shadow-lg duration-200" style={{ background: COLORS.primary, color: COLORS.offWhite }}>I'm a Hostel Owner</a>
             <a href="#" className="px-8 py-3 rounded-full font-bold text-lg transition-colors border-2 hover:scale-105 hover:shadow-lg duration-200" style={{ color: COLORS.offWhite, borderColor: COLORS.offWhite }}>Browse Listings</a>
           </div>
         </div>
