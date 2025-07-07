@@ -143,7 +143,7 @@ export default function Home() {
 
       {/* For Hostel Owners */}
       <motion.section
-        className="w-full max-w-lg sm:max-w-xl md:max-w-2xl mx-auto px-4 py-20 flex flex-col gap-10 items-center mb-16"
+        className="w-full z-20 max-w-lg sm:max-w-xl md:max-w-2xl mx-auto px-4 py-20 flex flex-col gap-10 items-center mb-16"
         id="owners"
         style={{ background: COLORS.cloud, borderRadius: 24 }}
         initial={{ opacity: 0, y: 40 }}
@@ -179,7 +179,7 @@ export default function Home() {
 
       {/* Testimonials */}
       <motion.section
-        className="w-full max-w-lg sm:max-w-xl md:max-w-2xl mx-auto px-4 py-20 flex flex-col gap-10 mb-16"
+        className="w-full z-20 max-w-lg sm:max-w-xl md:max-w-2xl mx-auto px-4 py-20 flex flex-col gap-10 mb-16"
         style={{ background: COLORS.offWhite, borderRadius: 24 }}
         initial={{ opacity: 0, scale: 0.95 }}
         whileInView={{ opacity: 1, scale: 1 }}
@@ -219,7 +219,7 @@ export default function Home() {
 
       {/* Final CTA */}
       <motion.section
-        className="w-full flex flex-col items-center justify-center px-4 py-24 text-center mb-16"
+        className="w-full z-20 flex flex-col items-center justify-center px-4 py-24 text-center mb-16"
         style={{ background: `linear-gradient(135deg, ${COLORS.primary} 0%, ${COLORS.skyBlue} 100%)` }}
         initial={{ opacity: 0, y: 40 }}
         whileInView={{ opacity: 1, y: 0 }}
