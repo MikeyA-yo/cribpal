@@ -101,7 +101,14 @@ export default function AddHostel() {
                   <MapPin className="w-4 h-4" /> Map
                 </a>
               </div>
-              <div className="text-gray-600 text-sm mb-1">{hostel.address}</div>
+              <div className="text-blue-700 text-xs font-semibold mb-1 flex items-center gap-1">
+                <MapPin className="w-3 h-3" />
+                {(() => {
+                  const segs = hostel.address.split(',');
+                  return segs[1]?.trim() || hostel.address;
+                })()}
+              </div>
+              <div className="text-gray-600 text-xs mb-1">{hostel.address}</div>
               <div className="text-blue-700 font-semibold mb-2">{hostel.price}</div>
               <div className="flex flex-wrap gap-2 mt-auto">
                 {hostel.features.map((f) => (

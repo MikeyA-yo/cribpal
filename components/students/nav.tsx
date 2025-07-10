@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { Menu, X, Home, CalendarCheck2, Settings } from "lucide-react";
+import { Menu, X, Home, Globe2, CalendarCheck2, Settings } from "lucide-react";
 import Link from "next/link";
 
 const navItems = [
@@ -8,6 +8,11 @@ const navItems = [
     name: "Home",
     href: "/students",
     icon: <Home className="w-5 h-5 mr-2" />,
+  },
+  {
+    name: "Explore",
+    href: "/students/explore",
+    icon: <Globe2 className="w-5 h-5 mr-2" />,
   },
   {
     name: "Bookings",
