@@ -1,34 +1,8 @@
 "use client";
 import React, { useState } from "react";
 import { motion } from "motion/react";
-import { PlusCircle, MapPin, CheckCircle, X } from "lucide-react";
-
-const dummyHostels = [
-  {
-    name: "Sunrise Hostel",
-    address: "12, University Road, Yaba, Lagos",
-    price: "₦350,000/year",
-    location: "https://maps.app.goo.gl/KCPYhSyNwEC153jV6",
-    image: "/room1.jpg",
-    features: ["Electricity", "Water", "Female Only", "WiFi"]
-  },
-  {
-    name: "Palm Court",
-    address: "5, Herbert Macaulay Way, Yaba, Lagos",
-    price: "₦320,000/year",
-    location: "https://maps.app.goo.gl/V26weoUPQa64cYDp7",
-    image: "/room2.jpg",
-    features: ["Electricity", "Water", "Male Only", "Parking"]
-  },
-  {
-    name: "Lakeside Residence",
-    address: "22, Bariga Road, Yaba, Lagos",
-    price: "₦400,000/year",
-    location: "https://maps.app.goo.gl/tWa6XdWDUMiLFSid8",
-    image: "/room3.jpg",
-    features: ["Electricity", "Water", "Amenities", "WiFi"]
-  },
-];
+import { PlusCircle, MapPin, CheckCircle, X, Trash2, Edit2 } from "lucide-react";
+import { useHostels } from "@/hooks/useHostels";
 
 const defaultFeatures = [
   { label: "Power/Electricity", value: "Electricity" },
@@ -41,7 +15,10 @@ const defaultFeatures = [
 ];
 
 export default function AddHostel() {
+  const { hostels, loading, error, createHostel, deleteHostel } = useHostels();
   const [open, setOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
   const [form, setForm] = useState({
     name: "",
     address: "",
@@ -66,10 +43,46 @@ export default function AddHostel() {
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    // Here you would send the data to your backend
-    setOpen(false);
-    setForm({ name: "", address: "", price: "", location: "", features: [], other: "" });
-    alert("Hostel added (dummy, not saved)");
+    handleCreateHostel();
+  }
+
+  async function handleCreateHostel() {
+    if (!form.name || !form.address || !form.price || !form.location) {
+      setSubmitError("Please fill in all required fields");
+      return;
+    }
+
+    setIsSubmitting(true);
+    setSubmitError("");
+
+    const result = await createHostel({
+      name: form.name,
+      address: form.address,
+      price: form.price,
+      location: form.location,
+      features: form.features,
+      other: form.other,
+    });
+
+    if (result.success) {
+      setOpen(false);
+      setForm({ name: "", address: "", price: "", location: "", features: [], other: "" });
+    } else {
+      setSubmitError(result.error || "Failed to create hostel");
+    }
+
+    setIsSubmitting(false);
+  }
+
+  async function handleDeleteHostel(id: string, name: string) {
+    if (!confirm(`Are you sure you want to delete "${name}"? This action cannot be undone.`)) {
+      return;
+    }
+
+    const result = await deleteHostel(id);
+    if (!result.success) {
+      alert(`Failed to delete hostel: ${result.error}`);
+    }
   }
 
   return (
@@ -83,17 +96,53 @@ export default function AddHostel() {
           <PlusCircle className="w-5 h-5" /> Add New Hostel
         </button>
       </div>
+
+      {/* Error State */}
+      {error && (
+        <div className="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+          {error}
+        </div>
+      )}
+
+      {/* Loading State */}
+      {loading && (
+        <div className="flex items-center justify-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-700"></div>
+          <span className="ml-3 text-gray-600">Loading your hostels...</span>
+        </div>
+      )}
+
+      {/* Empty State */}
+      {!loading && !error && hostels.length === 0 && (
+        <div className="text-center py-12">
+          <div className="text-gray-500 text-lg mb-4">No hostels added yet</div>
+          <p className="text-gray-400 mb-6">Start by adding your first hostel to CribPal</p>
+          <button
+            onClick={() => setOpen(true)}
+            className="inline-flex items-center gap-2 px-6 py-3 bg-blue-700 text-white rounded-lg shadow hover:bg-blue-800 transition font-semibold"
+          >
+            <PlusCircle className="w-5 h-5" /> Add Your First Hostel
+          </button>
+        </div>
+      )}
+
       {/* Hostel Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {dummyHostels.map((hostel, idx) => (
+      {!loading && hostels.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {hostels.map((hostel, idx) => (
           <motion.div
-            key={hostel.name}
+            key={hostel._id}
             className="bg-white rounded-xl shadow-md hover:shadow-xl transition overflow-hidden flex flex-col"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: idx * 0.1, duration: 0.5 }}
           >
-            <img src={hostel.image} alt={hostel.name} className="w-full h-44 object-cover" />
+            {/* Use default image if no images provided */}
+            <img 
+              src={hostel.images?.[0] || "/room1.jpg"} 
+              alt={hostel.name} 
+              className="w-full h-44 object-cover" 
+            />
             <div className="p-4 flex-1 flex flex-col">
               <div className="flex items-center gap-2 mb-1">
                 <h3 className="text-lg font-bold text-blue-800 flex-1">{hostel.name}</h3>
@@ -101,6 +150,26 @@ export default function AddHostel() {
                   <MapPin className="w-4 h-4" /> Map
                 </a>
               </div>
+              
+              {/* Status indicators */}
+              <div className="flex gap-2 mb-2">
+                {hostel.isVerified && (
+                  <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-semibold">
+                    Verified
+                  </span>
+                )}
+                {!hostel.isActive && (
+                  <span className="bg-red-100 text-red-800 px-2 py-1 rounded text-xs font-semibold">
+                    Inactive
+                  </span>
+                )}
+                {!hostel.isVerified && (
+                  <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs font-semibold">
+                    Pending Review
+                  </span>
+                )}
+              </div>
+
               <div className="text-blue-700 text-xs font-semibold mb-1 flex items-center gap-1">
                 <MapPin className="w-3 h-3" />
                 {(() => {
@@ -110,17 +179,40 @@ export default function AddHostel() {
               </div>
               <div className="text-gray-600 text-xs mb-1">{hostel.address}</div>
               <div className="text-blue-700 font-semibold mb-2">{hostel.price}</div>
-              <div className="flex flex-wrap gap-2 mt-auto">
+              
+              {/* Stats */}
+              <div className="text-xs text-gray-500 mb-2">
+                Views: {hostel.views} • Bookings: {hostel.bookings}
+              </div>
+              
+              <div className="flex flex-wrap gap-2 mb-4">
                 {hostel.features.map((f) => (
                   <span key={f} className="bg-blue-50 text-blue-700 px-2 py-1 rounded text-xs flex items-center gap-1 border border-blue-100">
                     <CheckCircle className="w-3 h-3" /> {f}
                   </span>
                 ))}
               </div>
+              
+              {/* Action buttons */}
+              <div className="flex gap-2 mt-auto">
+                <button
+                  onClick={() => {/* TODO: Implement edit */}}
+                  className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition text-sm font-semibold"
+                >
+                  <Edit2 className="w-4 h-4" /> Edit
+                </button>
+                <button
+                  onClick={() => handleDeleteHostel(hostel._id, hostel.name)}
+                  className="flex items-center justify-center gap-2 px-3 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition text-sm font-semibold"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           </motion.div>
         ))}
       </div>
+      )}
 
       {/* Add Hostel Dialog */}
       {open && (
@@ -145,6 +237,13 @@ export default function AddHostel() {
               <X className="w-5 h-5" />
             </button>
             <h3 className="text-xl font-bold text-blue-900 mb-4">Add a New Hostel</h3>
+            
+            {submitError && (
+              <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm">
+                {submitError}
+              </div>
+            )}
+            
             <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
               <input
                 type="text"
@@ -207,9 +306,10 @@ export default function AddHostel() {
               />
               <button
                 type="submit"
-                className="bg-blue-700 text-white px-6 py-2 rounded-lg font-semibold shadow hover:bg-blue-800 transition"
+                disabled={isSubmitting}
+                className="bg-blue-700 text-white px-6 py-2 rounded-lg font-semibold shadow hover:bg-blue-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Add Hostel
+                {isSubmitting ? "Adding Hostel..." : "Add Hostel"}
               </button>
             </form>
           </motion.div>
