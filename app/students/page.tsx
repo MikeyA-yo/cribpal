@@ -1,9 +1,9 @@
-import GetStarted from "@/components/hostelmanager/get-started";
+import StudentsGetStarted from "@/components/students/get-started";
 
 export default function Page(){
     return (
         <>
-        <GetStarted />
+        <StudentsGetStarted />
         </>
     )
 }
