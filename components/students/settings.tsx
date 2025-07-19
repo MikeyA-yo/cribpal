@@ -4,7 +4,7 @@ import { motion } from "motion/react";
 import { LogOut, Trash2, Loader2, CheckCircle, AlertCircle } from "lucide-react";
 import { useUserProfile } from "@/hooks/useUserProfile";
 
-export default function Settings() {
+export default function StudentSettings() {
   const { profile, loading, error, updateProfile, signOut, deleteAccount } = useUserProfile();
   const [form, setForm] = useState({
     name: "",
@@ -75,7 +75,7 @@ export default function Settings() {
   }
 
   async function handleDelete() {
-    if (confirm("Are you sure you want to delete your account? This action cannot be undone and will also delete all your hostels.")) {
+    if (confirm("Are you sure you want to delete your account? This action cannot be undone.")) {
       const result = await deleteAccount();
       if (!result.success) {
         alert(result.error || "Failed to delete account");
@@ -114,7 +114,7 @@ export default function Settings() {
       transition={{ duration: 0.4 }}
       className="p-4 md:p-8 max-w-xl mx-auto"
     >
-      <h2 className="text-2xl md:text-3xl font-bold text-blue-900 mb-6">Settings</h2>
+      <h2 className="text-2xl md:text-3xl font-bold text-blue-900 mb-6">Student Settings</h2>
       
       {/* Success Message */}
       {saveSuccess && (
@@ -201,7 +201,7 @@ export default function Settings() {
           />
         </div>
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1">University/Institution</label>
+          <label className="block text-sm font-semibold text-gray-700 mb-1">University/Institution *</label>
           <input
             type="text"
             name="university"
@@ -209,6 +209,7 @@ export default function Settings() {
             onChange={handleChange}
             placeholder="Your university or institution"
             className="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200"
+            required
           />
         </div>
         <button
