@@ -26,7 +26,7 @@ const navItems = [
   },
 ];
 
-export default function StudentsNav() {
+export default function StudentsNav({ user }: { user?: any }) {
   const [open, setOpen] = useState(false);
 
   return (

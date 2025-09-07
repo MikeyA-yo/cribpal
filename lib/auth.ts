@@ -31,7 +31,7 @@ export const auth = betterAuth({
   // Authentication methods
   emailAndPassword: {
     enabled: true,
-    requireEmailVerification: false, // Set to true in production
+    // Set to true in production
   },
   
   // Social providers for Google sign-in
@@ -59,6 +59,10 @@ export const auth = betterAuth({
         required: false,
       },
       phone: {
+        type: "string",
+        required: false,
+      },
+      businessName: {
         type: "string",
         required: false,
       },

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { MongoClient } from 'mongodb';
+import { MongoClient, ObjectId } from 'mongodb';
 
 // MongoDB connection
 async function getDatabase() {
@@ -31,21 +31,13 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const db = await getDatabase();
-    const user = await db.collection('user').findOne({ id: session.user.id });
+    const user = session.user as any;
 
-    if (!user) {
-      return NextResponse.json(
-        { error: 'User not found' },
-        { status: 404 }
-      );
-    }
-
-    // Return user profile data
+    // Return user profile data directly from session
     const profile = {
       id: user.id,
-      name: user.name,
-      email: user.email,
+      name: user.name || '',
+      email: user.email || '',
       firstName: user.firstName || '',
       lastName: user.lastName || '',
       phone: user.phone || '',
@@ -101,20 +93,33 @@ export async function PUT(request: NextRequest) {
 
     const db = await getDatabase();
 
-    // Check if email is already taken by another user
-    const existingUser = await db.collection('user').findOne({
-      email: email,
-      id: { $ne: session.user.id }
-    });
+    // Find user by _id as ObjectId (we now know this is how Better Auth works)
+    const userInDb = await db.collection('user').findOne({ _id: new ObjectId(session.user.id) });
+    console.log('User found:', userInDb ? 'YES' : 'NO');
 
-    if (existingUser) {
+    if (!userInDb) {
       return NextResponse.json(
-        { error: 'Email is already taken' },
-        { status: 409 }
+        { error: 'User not found in database' },
+        { status: 404 }
       );
     }
 
-    // Update user profile
+    // Check if email is already taken by another user (only if email is being changed)
+    if (email !== session.user.email) {
+      const existingUser = await db.collection('user').findOne({
+        email: email,
+        _id: { $ne: userInDb._id }
+      });
+
+      if (existingUser) {
+        return NextResponse.json(
+          { error: 'Email is already taken' },
+          { status: 409 }
+        );
+      }
+    }
+
+    // Update user profile in the user collection using email as identifier
     const updateData = {
       name,
       email,
@@ -126,10 +131,13 @@ export async function PUT(request: NextRequest) {
       updatedAt: new Date(),
     };
 
+    // Update user using _id as ObjectId (the proper way!)
     const result = await db.collection('user').updateOne(
-      { id: session.user.id },
+      { _id: new ObjectId(session.user.id) },
       { $set: updateData }
     );
+
+    console.log('Update result for user:', session.user.id, result);
 
     if (result.matchedCount === 0) {
       return NextResponse.json(
@@ -138,8 +146,8 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    // Get updated user data
-    const updatedUser = await db.collection('user').findOne({ id: session.user.id });
+    // Get updated user data using _id
+    const updatedUser = await db.collection('user').findOne({ _id: new ObjectId(session.user.id) });
 
     if (!updatedUser) {
       return NextResponse.json(
@@ -149,15 +157,15 @@ export async function PUT(request: NextRequest) {
     }
 
     const profile = {
-      id: updatedUser.id,
-      name: updatedUser.name,
-      email: updatedUser.email,
+      id: updatedUser._id.toString(),
+      name: updatedUser.name || '',
+      email: updatedUser.email || '',
       firstName: updatedUser.firstName || '',
       lastName: updatedUser.lastName || '',
       phone: updatedUser.phone || '',
       userType: updatedUser.userType || 'student',
       university: updatedUser.university || '',
-      profileImage: updatedUser.profileImage || '',
+      profileImage: updatedUser.profileImage || updatedUser.image || '',
       isVerified: updatedUser.isVerified || false,
     };
 
@@ -191,16 +199,16 @@ export async function DELETE(request: NextRequest) {
     const db = await getDatabase();
 
     // Delete user's hostels if they are a hostel manager
-    const user = await db.collection('user').findOne({ id: session.user.id });
+    const user = await db.collection('user').findOne({ _id: new ObjectId(session.user.id) });
     if (user?.userType === 'hostel_manager') {
       await db.collection('hostels').deleteMany({ managerId: session.user.id });
     }
 
-    // Delete user sessions
+    // Delete user sessions (this might use different field)
     await db.collection('session').deleteMany({ userId: session.user.id });
 
-    // Delete user account
-    const result = await db.collection('user').deleteOne({ id: session.user.id });
+    // Delete user account using _id as ObjectId
+    const result = await db.collection('user').deleteOne({ _id: new ObjectId(session.user.id) });
 
     if (result.deletedCount === 0) {
       return NextResponse.json(

@@ -25,6 +25,7 @@ export interface CribPalUser {
   firstName?: string;
   lastName?: string;
   phone?: string;
+  businessName?: string;
   university?: string;
   profileImage?: string;
   isVerified: boolean;

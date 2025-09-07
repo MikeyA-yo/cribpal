@@ -1,9 +1,9 @@
-import StudentsGetStarted from "@/components/students/get-started";
+import Explore from "@/components/students/explore";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 
-export default async function Page() {
+export default async function ExplorePage() {
     const session = await auth.api.getSession({ headers: await headers() });
 
     if (!session?.user) {
@@ -17,7 +17,7 @@ export default async function Page() {
 
     return (
         <>
-            <StudentsGetStarted user={user} />
+            <Explore />
         </>
     )
 }

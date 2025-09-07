@@ -56,6 +56,7 @@ const StudentSignUp = () => {
         password: formData.password,
         name: `${formData.firstName} ${formData.lastName}`,
       });
+      // Optionally, send additional user data to your backend here after successful sign up
 
       if (error) {
         setError(error.message || "Sign up failed");

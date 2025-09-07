@@ -56,6 +56,7 @@ const HostelManagerSignUp = () => {
         email: formData.email,
         password: formData.password,
         name: `${formData.firstName} ${formData.lastName}`,
+        
       });
 
       if (error) {
@@ -64,6 +65,11 @@ const HostelManagerSignUp = () => {
       }
 
       if (data?.user) {
+        // Update user with additional fields after successful signup
+        await authClient.updateUser({
+          name: `${formData.firstName} ${formData.lastName}`,
+        });
+        
         router.push("/hostelmanager");
       }
     } catch (err) {

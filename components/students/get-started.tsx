@@ -2,10 +2,35 @@ import React from "react";
 import { Home, CalendarCheck2, Settings } from "lucide-react";
 import Link from "next/link";
 
-export default function StudentsGetStarted() {
+export default function StudentsGetStarted({ user }: { user?: any }) {
+  // Debug log to see what user data we're getting
+  console.log('StudentsGetStarted received user:', user);
+  
+  // Handle different user data sources (OAuth vs email signup)
+  const getDisplayName = () => {
+    if (user?.firstName) {
+      return user.firstName;
+    }
+    
+    if (user?.name) {
+      // For OAuth users or users with just a name field
+      const nameParts = user.name.split(' ');
+      return nameParts[0];
+    }
+    
+    // Fallback to email username if no name is available
+    if (user?.email) {
+      return user.email.split('@')[0];
+    }
+    
+    return 'Student';
+  };
+  
   return (
     <div className="flex flex-col items-center justify-center h-full py-20">
-      <h1 className="text-3xl md:text-4xl font-bold mb-4 text-green-900">Welcome to your Student Dashboard</h1>
+      <h1 className="text-3xl md:text-4xl font-bold mb-4 text-green-900">
+        Welcome, {getDisplayName()}!
+      </h1>
       <p className="text-lg text-gray-700 mb-8 text-center max-w-lg">
         Here you can easily manage your hostel journey. Use the quick links below to get started.
       </p>

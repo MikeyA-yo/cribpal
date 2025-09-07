@@ -42,9 +42,6 @@ const HostelManagerSignIn = () => {
       }
 
       if (data?.user) {
-        // Update user info (if needed by backend)
-        await authClient.updateUser({});
-        
         // Redirect to hostel manager dashboard
         router.push("/hostelmanager");
       }

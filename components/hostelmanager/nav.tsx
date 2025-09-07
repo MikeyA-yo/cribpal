@@ -24,7 +24,7 @@ const navItems = [
   }
 ];
 
-export default function HostelManagerNav() {
+export default function HostelManagerNav({ user }: { user?: any }) {
   const [open, setOpen] = useState(false);
 
   return (

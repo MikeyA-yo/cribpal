@@ -62,6 +62,7 @@ export default function StudentSettings() {
       setTimeout(() => setSaveSuccess(false), 3000);
     } else {
       setSaveError(result.error || "Failed to save changes");
+      
     }
   }
 
