@@ -259,7 +259,7 @@ const StudentSignUp = () => {
       {/* Right: Image */}
       <div className="flex-1 relative min-h-[300px] md:min-h-0 h-64 md:h-auto">
         <Image
-          src="/collegestudent.jpg"
+          src="/cgstd.jpg"
           alt="Students"
           fill
           className="object-cover w-full h-full md:rounded-l-3xl"
