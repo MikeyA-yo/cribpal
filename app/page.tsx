@@ -1,251 +1,336 @@
-"use client"
+"use client";
 import Image from "next/image";
 import Navbar from "../components/Navbar";
-import { motion } from "motion/react";
+import { motion } from "framer-motion";
 import BlueParticlesBg from "../components/BlueParticlesBg";
+import { Search, Shield, Users } from "lucide-react";
+import Link from "next/link";
 
-// Color palette
 const COLORS = {
-  primary: "#007BFF", // Digital Blue
-  darkBlue: "#0B1E3F", // Midnight Interface
-  skyBlue: "#50C9F2", // Soft Cyan Glow
-  graphite: "#1E1E2F", // Graphite Frame
-  cloud: "#E5E8EC", // Cloud Chrome
-  offWhite: "#F9FBFF", // Ice Fog
-  green: "#2ECC71", // Neon Byte
-  orange: "#F39C12", // Alert Pulse
-  purple: "#8E44AD", // Tech Lavender
+  primary: "#007BFF",
+  darkBlue: "#0B1E3F",
+  skyBlue: "#50C9F2",
+  graphite: "#1E1E2F",
+  cloud: "#E5E8EC",
+  offWhite: "#F9FBFF",
+  green: "#2ECC71",
+  orange: "#F39C12",
+  purple: "#8E44AD",
 };
 
 export default function Home() {
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: COLORS.offWhite }}>
+    <div className="min-h-screen flex flex-col bg-offWhite">
       <BlueParticlesBg />
       <Navbar />
+
       {/* Hero Section */}
       <motion.section
-        className="relative w-full flex flex-col items-center justify-center px-4 py-24 text-center mb-16 overflow-hidden"
-        style={{ background: `linear-gradient(135deg, ${COLORS.skyBlue} 0%, ${COLORS.primary} 100%)` }}
-        initial={{ opacity: 0, y: -40 }}
+        className="relative w-full flex items-center justify-center px-4 pt-28 pb-20 text-center"
+        initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7 }}
+        transition={{ duration: 1, ease: "easeOut" }}
       >
-        {/* Hero background image, only on md+ screens */}
-        <div className="hidden md:block absolute right-0 top-0 h-full w-1/3 z-0">
-          <img
+        <div className="absolute inset-0 bg-gradient-to-br from-skyBlue to-primary opacity-90"></div>
+        <div className="absolute inset-0">
+          <Image
             src="/cgstds.jpg"
-            alt="Students"
-            className="h-full w-full object-cover rounded-l-[100vw] shadow-xl"
-            style={{ borderTopLeftRadius: '100vw', borderBottomLeftRadius: '100vw' }}
+            alt="Happy students"
+            fill
+            style={{ objectFit: "cover" }}
+            className="opacity-20"
           />
         </div>
-        <div className="relative z-10 flex flex-col items-center justify-center  w-full md:w-2/3 mx-auto">
-          <h1
-            className="text-4xl sm:text-5xl font-extrabold mb-4 bg-gradient-to-r from-white to-[#0B1E3F] -translate-y-10 bg-clip-text text-transparent"
+
+        <div className="relative z-10 flex flex-col items-center">
+          <motion.h1 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, delay: 0.2, ease: "easeOut" }}
+            className="text-4xl md:text-6xl font-extrabold mb-4 text-white shadow-lg"
           >
-            Find a Hostel Without the Stress.<br />
-            <span className="text-xl sm:text-2xl font-semibold block mt-2 text-white">
-              No agents. No scams. Just verified, affordable spaces near campus.
-            </span>
-          </h1>
-          <p className="max-w-xl mx-auto text-lg sm:text-xl mb-8" style={{ color: COLORS.cloud }}>
-            CribPal is the easiest way for Unilag students to find off-campus accommodation — safely, transparently, and 100% student-focused.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a href="/forstudents" className="px-8 py-3 rounded-full font-bold text-lg transition-colors shadow-md hover:scale-105 hover:shadow-lg duration-200" style={{ background: COLORS.offWhite, color: COLORS.primary }}>I'm a Student</a>
-            <a href="/forhostelowners" className="px-8 py-3 rounded-full font-bold text-lg transition-colors shadow-md hover:scale-105 hover:shadow-lg duration-200" style={{ background: COLORS.primary, color: COLORS.offWhite }}>I'm a Hostel Owner</a>
-            <a href="#" className="px-8 py-3 rounded-full font-bold text-lg transition-colors border-2 hover:scale-105 hover:shadow-lg duration-200" style={{ color: COLORS.offWhite, borderColor: COLORS.offWhite }}>Browse Listings</a>
-          </div>
-        </div>
-      </motion.section>
-
-      {/* Why CribPal */}
-      <motion.section
-        className="w-full max-w-lg sm:max-w-xl md:max-w-2xl mx-auto px-4 py-20 flex flex-col gap-10 mb-16"
-        style={{ background: COLORS.cloud, borderRadius: 24 }}
-        initial={{ opacity: 0, x: -60 }}
-        whileInView={{ opacity: 1, x: 0 }}
-        viewport={{ once: true, amount: 0.3 }}
-        transition={{ duration: 0.7 }}
-      >
-        <h2 className="text-3xl font-bold text-center mb-2" style={{ color: COLORS.darkBlue }}>Why CribPal?</h2>
-        <p className="text-center text-lg mb-6" style={{ color: COLORS.graphite }}>
-          We know the struggle.<br />
-          CribPal was built by students who got tired of walking around, paying agents, and getting lied to. We're here to change that.
-        </p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          <div className="flex items-start gap-3">
-            <span className="text-2xl" style={{ color: COLORS.green }}>✔</span>
-            <div>
-              <div className="font-semibold" style={{ color: COLORS.darkBlue }}>No More Agent Fees</div>
-              <div className="text-base" style={{ color: COLORS.graphite }}>Skip the commission and inspection charges. CribPal connects you directly with hostel owners.</div>
-            </div>
-          </div>
-          <div className="flex items-start gap-3">
-            <span className="text-2xl" style={{ color: COLORS.green }}>✔</span>
-            <div>
-              <div className="font-semibold" style={{ color: COLORS.darkBlue }}>Verified Hostels Only</div>
-              <div className="text-base" style={{ color: COLORS.graphite }}>We inspect every listing and collect real reviews from students who've stayed there.</div>
-            </div>
-          </div>
-          <div className="flex items-start gap-3">
-            <span className="text-2xl" style={{ color: COLORS.purple }}>✔</span>
-            <div>
-              <div className="font-semibold" style={{ color: COLORS.darkBlue }}>Smart Search Tools</div>
-              <div className="text-base" style={{ color: COLORS.graphite }}>Use filters, comfort ratings, and map views to find a place that actually fits your needs — and your budget.</div>
-            </div>
-          </div>
-          <div className="flex items-start gap-3">
-            <span className="text-2xl" style={{ color: COLORS.primary }}>✔</span>
-            <div>
-              <div className="font-semibold" style={{ color: COLORS.darkBlue }}>Book With Confidence</div>
-              <div className="text-base" style={{ color: COLORS.graphite }}>Secure your space online with trusted payment and refund options.</div>
-            </div>
-          </div>
-        </div>
-      </motion.section>
-
-      {/* How It Works */}
-      <motion.section
-        className="w-full max-w-lg sm:max-w-xl md:max-w-2xl mx-auto px-4 py-20 flex flex-col gap-10 mb-16"
-        style={{ background: COLORS.offWhite, borderRadius: 24 }}
-        initial={{ opacity: 0, x: 60 }}
-        whileInView={{ opacity: 1, x: 0 }}
-        viewport={{ once: true, amount: 0.3 }}
-        transition={{ duration: 0.7 }}
-      >
-        <h2 className="text-3xl font-bold text-center mb-6" style={{ color: COLORS.darkBlue }}>How It Works</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-6 text-center">
-          {["Sign Up", "Browse Listings", "Filter & Compare", "Book or Inspect", "Move in"].map((step, i) => (
-            <motion.div
-              key={step}
-              className="flex flex-col items-center gap-2 transition-transform duration-200 hover:shadow-2xl hover:-translate-y-1"
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.3 }}
-              transition={{ delay: 0.1 * i, duration: 0.5 }}
+            Find Your Perfect Student Hostel.
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, delay: 0.4, ease: "easeOut" }}
+            className="max-w-2xl mx-auto text-lg md:text-xl mb-8 text-cloud"
+          >
+            No agents. No scams. Just verified, affordable spaces near campus,
+            built for students by students.
+          </motion.p>
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, delay: 0.6, ease: "easeOut" }}
+            className="flex flex-col sm:flex-row gap-4 justify-center"
+          >
+            <Link
+              href="/forstudents"
+              className="px-8 py-3 rounded-full font-bold text-lg transition-all shadow-md hover:shadow-xl hover:scale-105 duration-300 bg-offWhite text-primary"
             >
-              <div className="rounded-full w-12 h-12 flex items-center justify-center font-bold text-xl shadow-md" style={{ background: COLORS.skyBlue, color: COLORS.darkBlue }}>{i + 1}</div>
-              <div className="font-semibold" style={{ color: COLORS.darkBlue }}>{step}</div>
-              <div className="text-sm" style={{ color: COLORS.graphite }}>
-                {[
-                  "Just your name and student ID.",
-                  "From verified hostels around your campus.",
-                  "By price, comfort, distance, and more.",
-                  "Directly from the app — no agents needed.",
-                  "With peace of mind."
-                ][i]}
-              </div>
+              I'm a Student
+            </Link>
+            <Link
+              href="/forhostelowners"
+              className="px-8 py-3 rounded-full font-bold text-lg transition-all shadow-md hover:shadow-xl hover:scale-105 duration-300 bg-darkBlue text-offWhite"
+            >
+              I'm a Hostel Owner
+            </Link>
+          </motion.div>
+        </div>
+      </motion.section>
+
+      {/* Why CribPal Section */}
+      <section className="w-full max-w-5xl mx-auto px-4 py-20">
+        <motion.div 
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.5 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="text-center mb-12"
+        >
+          <h2 className="text-3xl md:text-4xl font-bold text-darkBlue">
+            Why Choose CribPal?
+          </h2>
+          <p className="text-lg text-graphite mt-2">
+            The smart, safe, and simple way to find your next home.
+          </p>
+        </motion.div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {[
+            { icon: <Shield size={48} className="text-primary mb-4" />, title: "Verified & Secure", text: "Every hostel is verified by our team, and all payments are secured. Say goodbye to uncertainty." },
+            { icon: <Search size={48} className="text-green mb-4" />, title: "Advanced Search", text: "Filter by price, location, amenities, and more to find the perfect match for your needs and budget." },
+            { icon: <Users size={48} className="text-purple mb-4" />, title: "Community Focused", text: "Built by students, for students. We understand your needs and connect you with the best options." }
+          ].map((card, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.5 }}
+              transition={{ duration: 0.8, delay: i * 0.2, ease: "easeOut" }}
+              className="flex flex-col items-center text-center p-6 bg-white rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300"
+            >
+              {card.icon}
+              <h3 className="text-xl font-semibold text-darkBlue mb-2">
+                {card.title}
+              </h3>
+              <p className="text-graphite">
+                {card.text}
+              </p>
             </motion.div>
           ))}
         </div>
-      </motion.section>
+      </section>
 
-      {/* For Hostel Owners */}
-      <motion.section
-        className="w-full z-20 max-w-lg sm:max-w-xl md:max-w-2xl mx-auto px-4 py-20 flex flex-col gap-10 items-center mb-16"
-        id="owners"
-        style={{ background: COLORS.cloud, borderRadius: 24 }}
-        initial={{ opacity: 0, y: 40 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.3 }}
-        transition={{ duration: 0.7 }}
-      >
-        <div className="w-full bg-white rounded-xl shadow-md p-8 flex flex-col gap-4 transition-shadow duration-200 hover:shadow-2xl hover:-translate-y-1">
-          <h3 className="text-2xl font-bold mb-2" style={{ color: COLORS.primary }}>For Students</h3>
-          <ul className="list-disc list-inside text-base flex flex-col gap-2" style={{ color: COLORS.graphite }}>
-            <li>Browse and filter verified hostels near campus</li>
-            <li>See real reviews and comfort ratings from other students</li>
-            <li>Book or schedule inspections online—no agents needed</li>
-            <li>Secure payment and refund options</li>
-          </ul>
-          <a href="/forstudents" className="mt-4 inline-block px-6 py-2 rounded-full font-semibold transition-colors shadow-md hover:scale-105 hover:shadow-lg duration-200" style={{ background: COLORS.primary, color: COLORS.offWhite }}>Find a Room</a>
-        </div>
-        {/* For Hostel Owners Card */}
-        <div className="w-full bg-white rounded-xl shadow-md p-8 flex flex-col gap-4 transition-transform duration-200 hover:shadow-2xl hover:-translate-y-1">
-          <h2 className="text-2xl font-bold mb-2" style={{ color: COLORS.darkBlue }}>For Hostel Owners</h2>
-          <p className="text-lg mb-4" style={{ color: COLORS.graphite }}>
-            Got space to rent?<br />
-            Join CribPal to reach thousands of verified students without relying on third-party agents.
-          </p>
-          <ul className="text-left flex flex-col gap-2 mb-4" style={{ color: COLORS.darkBlue }}>
-            <li>• Post listings for free</li>
-            <li>• Set availability and prices</li>
-            <li>• Manage bookings easily</li>
-          </ul>
-          <a href="/forhostelowners" className="px-6 py-2 rounded-full font-semibold transition-colors shadow-md hover:scale-105 hover:shadow-lg duration-200" style={{ background: COLORS.offWhite, color: COLORS.primary, border: `2px solid ${COLORS.primary}` }}>List Your Hostel Now</a>
-        </div>
-      </motion.section>
-
-      {/* Testimonials */}
-      <motion.section
-        className="w-full z-20 max-w-lg sm:max-w-xl md:max-w-2xl mx-auto px-4 py-20 flex flex-col gap-10 mb-16"
-        style={{ background: COLORS.offWhite, borderRadius: 24 }}
-        initial={{ opacity: 0, scale: 0.95 }}
-        whileInView={{ opacity: 1, scale: 1 }}
-        viewport={{ once: true, amount: 0.3 }}
-        transition={{ duration: 0.7 }}
-      >
-        <h2 className="text-3xl font-bold text-center mb-8" style={{ color: COLORS.darkBlue }}>Student Testimonials</h2>
-        <div className="flex flex-col md:flex-row gap-8">
-          <motion.div
-            className="flex-1 bg-white rounded-xl shadow-md p-6 flex flex-col gap-2 transition-transform duration-200 hover:shadow-2xl hover:-translate-y-1"
-            style={{ border: `1.5px solid ${COLORS.cloud}` }}
-            initial={{ opacity: 0, x: -40 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: 0.6 }}
+      {/* How It Works Section */}
+      <section className="bg-cloud py-20">
+        <div className="max-w-5xl mx-auto px-4">
+          <motion.div 
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.5 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="text-center mb-12"
           >
-            <p className="italic" style={{ color: COLORS.graphite }}>
-              {`I wasted ₦3k on inspection fees before CribPal. Now I just filter what I want, book online, and move in without stress.`}
+            <h2 className="text-3xl md:text-4xl font-bold text-darkBlue">
+              How It Works
+            </h2>
+            <p className="text-lg text-graphite mt-2">
+              Find your hostel in three simple steps.
             </p>
-            <div className="font-semibold mt-2" style={{ color: COLORS.darkBlue }}>— Bola, 300L Student, Unilag</div>
           </motion.div>
-          <motion.div
-            className="flex-1 bg-white rounded-xl shadow-md p-6 flex flex-col gap-2 transition-shadow duration-200 hover:shadow-2xl hover:-translate-y-1"
-            style={{ border: `1.5px solid ${COLORS.cloud}` }}
-            initial={{ opacity: 0, x: 40 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: 0.6 }}
-          >
-            <p className="italic" style={{ color: COLORS.graphite }}>
-              {`Our hostel got fully booked in 2 weeks on CribPal. Zero agent drama.`}
-            </p>
-            <div className="font-semibold mt-2" style={{ color: COLORS.darkBlue }}>— Daniel, Hostel Manager</div>
-          </motion.div>
+          <div className="grid md:grid-cols-3 gap-8 text-center">
+            {[
+              { num: 1, title: "Search & Discover", text: "Browse through our curated list of verified hostels near your campus." },
+              { num: 2, title: "Book & Pay", text: "Found the one? Book your spot and pay securely through our platform." },
+              { num: 3, title: "Move In!", text: "That's it! Pack your bags and get ready to start your new semester in your new home." }
+            ].map((step, i) => (
+              <motion.div 
+                key={i}
+                initial={{ opacity: 0, y: 50 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.5 }}
+                transition={{ duration: 0.8, delay: i * 0.2, ease: "easeOut" }}
+                className="flex flex-col items-center"
+              >
+                <div className="w-16 h-16 rounded-full bg-primary text-white flex items-center justify-center text-2xl font-bold mb-4">
+                  {step.num}
+                </div>
+                <h3 className="text-xl font-semibold text-darkBlue mb-2">
+                  {step.title}
+                </h3>
+                <p className="text-graphite">
+                  {step.text}
+                </p>
+              </motion.div>
+            ))}
+          </div>
         </div>
-      </motion.section>
+      </section>
 
-      {/* Final CTA */}
-      <motion.section
-        className="w-full z-20 flex flex-col items-center justify-center px-4 py-24 text-center mb-16"
-        style={{ background: `linear-gradient(135deg, ${COLORS.primary} 0%, ${COLORS.skyBlue} 100%)` }}
-        initial={{ opacity: 0, y: 40 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.3 }}
-        transition={{ duration: 0.7 }}
-      >
-        <h2 className="text-3xl sm:text-4xl font-bold mb-4" style={{ color: COLORS.offWhite }}>
-          Stop guessing. Start booking.<br />
-          <span className="text-xl sm:text-2xl font-semibold block mt-2" style={{ color: COLORS.cloud }}>
-            Join thousands of students using CribPal to find better accommodation, faster.
-          </span>
-        </h2>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center mt-4">
-          <a href="#" className="px-8 py-3 rounded-full font-bold text-lg transition-colors shadow-md hover:scale-105 hover:shadow-lg duration-200" style={{ background: COLORS.offWhite, color: COLORS.primary }}>Create an Account</a>
-          <a href="#" className="px-8 py-3 rounded-full font-bold text-lg transition-colors border-2 hover:scale-105 hover:shadow-lg duration-200" style={{ color: COLORS.offWhite, borderColor: COLORS.offWhite }}>Browse Verified Hostels</a>
+      {/* Featured Hostels Section */}
+      <section className="py-20">
+        <div className="max-w-6xl mx-auto px-4">
+          <motion.div 
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.5 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-3xl md:text-4xl font-bold text-darkBlue">
+              Featured Hostels
+            </h2>
+            <p className="text-lg text-graphite mt-2">
+              Check out some of the top-rated hostels on our platform.
+            </p>
+          </motion.div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <motion.div 
+                key={i} 
+                initial={{ opacity: 0, y: 50 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.5 }}
+                transition={{ duration: 0.8, delay: i * 0.2, ease: "easeOut" }}
+                className="bg-white rounded-lg shadow-lg overflow-hidden group"
+              >
+                <div className="relative h-48">
+                  <Image
+                    src={`/room${i + 1}.jpg`}
+                    alt={`Hostel room ${i + 1}`}
+                    fill
+                    style={{ objectFit: "cover" }}
+                    className="group-hover:scale-110 transition-transform duration-300"
+                  />
+                </div>
+                <div className="p-4">
+                  <h3 className="text-lg font-semibold text-darkBlue">
+                    Modern Shared Room
+                  </h3>
+                  <p className="text-graphite">Yaba, Lagos</p>
+                  <p className="text-primary font-bold mt-2">₦250,000/year</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+          <div className="text-center mt-12">
+            <Link
+              href="#"
+              className="px-8 py-3 rounded-full font-bold text-lg transition-all shadow-md hover:shadow-xl hover:scale-105 duration-300 bg-primary text-white"
+            >
+              Browse All Hostels
+            </Link>
+          </div>
         </div>
-      </motion.section>
+      </section>
+
+      {/* Testimonials Section */}
+      <section className="bg-cloud py-20">
+        <div className="max-w-4xl mx-auto px-4">
+          <motion.div 
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.5 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-3xl md:text-4xl font-bold text-darkBlue">
+              What Students Say
+            </h2>
+          </motion.div>
+          <div className="grid md:grid-cols-2 gap-8">
+            {[
+              { img: "/cgstd.jpg", name: "Tunde, Year 3", text: "\"CribPal made finding a hostel so easy. I found a great place in just a few hours without any agent drama. Highly recommended!\"" },
+              { img: "/cgstds.jpg", name: "Aisha, Year 2", text: "\"I was skeptical at first, but the verification process gave me peace of mind. The hostel was exactly as advertised.\"" }
+            ].map((testimonial, i) => (
+              <motion.div 
+                key={i}
+                initial={{ opacity: 0, y: 50 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.5 }}
+                transition={{ duration: 0.8, delay: i * 0.2, ease: "easeOut" }}
+                className="bg-white p-6 rounded-xl shadow-lg"
+              >
+                <p className="text-graphite italic">
+                  {testimonial.text}
+                </p>
+                <div className="flex items-center mt-4">
+                  <Image
+                    src={testimonial.img}
+                    alt="Student"
+                    width={40}
+                    height={40}
+                    className="rounded-full"
+                  />
+                  <p className="ml-4 font-semibold text-darkBlue">{testimonial.name}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* Footer */}
-      <footer className="w-full text-center py-12 text-sm border-t mt-8 flex flex-col gap-2 items-center" style={{ color: COLORS.graphite, borderTopColor: COLORS.cloud, background: COLORS.offWhite }}>
-        <div>© 2025 CribPal. Built by students, for students.</div>
-        <div className="flex flex-wrap gap-4 justify-center mt-2">
-          <a href="#" className="hover:underline">Contact us</a>
-          <a href="#" className="hover:underline">Terms & Privacy</a>
-          <a href="#" className="hover:underline">Instagram</a>
-          <a href="#" className="hover:underline">Twitter</a>
+      <footer className="bg-darkBlue text-white py-10">
+        <div className="max-w-6xl mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div>
+            <h3 className="text-xl font-bold mb-4">CribPal</h3>
+            <p className="text-cloud">
+              Your trusted partner in student accommodation.
+            </p>
+          </div>
+          <div>
+            <h4 className="font-semibold mb-4">Quick Links</h4>
+            <ul className="space-y-2">
+              <li>
+                <Link href="/forstudents" className="hover:text-skyBlue">
+                  For Students
+                </Link>
+              </li>
+              <li>
+                <Link href="/forhostelowners" className="hover:text-skyBlue">
+                  For Hostel Owners
+                </Link>
+              </li>
+              <li>
+                <Link href="#" className="hover:text-skyBlue">
+                  Browse Hostels
+                </Link>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="font-semibold mb-4">Support</h4>
+            <ul className="space-y-2">
+              <li>
+                <Link href="#" className="hover:text-skyBlue">
+                  FAQ
+                </Link>
+              </li>
+              <li>
+                <Link href="#" className="hover:text-skyBlue">
+                  Contact Us
+                </Link>
+              </li>
+              <li>
+                <Link href="#" className="hover:text-skyBlue">
+                  Terms of Service
+                </Link>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="font-semibold mb-4">Follow Us</h4>
+            <div className="flex space-x-4">
+              {/* Add social media links here */}
+            </div>
+          </div>
+        </div>
+        <div className="text-center text-cloud mt-8 pt-8 border-t border-graphite">
+          <p>&copy; {new Date().getFullYear()} CribPal. All rights reserved.</p>
         </div>
       </footer>
     </div>
