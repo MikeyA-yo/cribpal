@@ -73,11 +73,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Validate price is a number
+    const priceNumber = typeof price === 'number' ? price : parseFloat(price);
+    if (isNaN(priceNumber) || priceNumber <= 0) {
+      return NextResponse.json(
+        { error: "Price must be a valid positive number" },
+        { status: 400 }
+      );
+    }
+
     // Create hostel document
     const hostelData = {
       name: name.trim(),
       address: address.trim(),
-      price: price.trim(),
+      price: priceNumber, // Store as number
       location: location.trim(),
       features: features || [],
       other: other?.trim() || "",

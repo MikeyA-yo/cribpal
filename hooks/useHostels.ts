@@ -25,7 +25,7 @@ export interface Hostel {
   _id: string;
   name: string;
   address: string;
-  price: string;
+  price: number; // Changed from string to number
   location: string;
   features: string[];
   other?: string;
@@ -43,7 +43,7 @@ export interface Hostel {
 export interface CreateHostelData {
   name: string;
   address: string;
-  price: string;
+  price: number; // Changed from string to number
   location: string;
   features: string[];
   other?: string;

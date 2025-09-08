@@ -3,12 +3,17 @@ import React, { useState } from "react";
 import { motion } from "motion/react";
 import { CheckCircle, MapPin, Heart, Eye, Search, Filter } from "lucide-react";
 
+// Price formatting function
+function formatPrice(price: number): string {
+  return `₦${price.toLocaleString()}/year`;
+}
+
 const availableHostels = [
   {
     id: 1,
     name: "Golden View Hostel",
     address: "8, Akoka Road, Yaba, Lagos",
-    price: "₦280,000/year",
+    price: 280000,
     location: "https://maps.google.com/maps?q=6.5244,3.3792&z=15&output=embed",
     image: "/room3.jpg",
     features: ["Electricity", "Water", "WiFi", "Parking", "Amenities"],
@@ -20,7 +25,7 @@ const availableHostels = [
     id: 2,
     name: "Emerald Heights",
     address: "15, University Road, Akoka, Lagos",
-    price: "₦320,000/year",
+    price: 320000,
     location: "https://maps.google.com/maps?q=6.5201,3.3856&z=15&output=embed",
     image: "/room4.jpg",
     features: ["Electricity", "Water", "Female Only", "WiFi", "Security"],
@@ -32,7 +37,7 @@ const availableHostels = [
     id: 3,
     name: "Royal Castle Hostel",
     address: "22, Herbert Macaulay Way, Yaba, Lagos",
-    price: "₦380,000/year",
+    price: 380000,
     location: "https://maps.google.com/maps?q=6.5095,3.3757&z=15&output=embed",
     image: "/room5.jpg",
     features: ["Electricity", "Water", "Male Only", "WiFi", "Parking", "Gym"],
@@ -44,7 +49,7 @@ const availableHostels = [
     id: 4,
     name: "BlueBay Student Lodge",
     address: "5, Randle Avenue, Yaba, Lagos",
-    price: "₦260,000/year",
+    price: 260000,
     location: "https://maps.google.com/maps?q=6.5156,3.3798&z=15&output=embed",
     image: "/room6.jpg",
     features: ["Electricity", "Water", "WiFi", "Study Room"],
@@ -56,7 +61,7 @@ const availableHostels = [
     id: 5,
     name: "Sunset Paradise",
     address: "30, Folagbade Street, Yaba, Lagos",
-    price: "₦340,000/year",
+    price: 340000,
     location: "https://maps.google.com/maps?q=6.5123,3.3734&z=15&output=embed",
     image: "/room7.jpg",
     features: ["Electricity", "Water", "WiFi", "Parking", "Laundry", "Security"],
@@ -162,7 +167,7 @@ export default function Explore() {
                   </div>
                 </div>
 
-                <div className="text-blue-700 font-semibold text-lg mb-2">{hostel.price}</div>
+                <div className="text-blue-700 font-semibold text-lg mb-2">{formatPrice(hostel.price)}</div>
                 
                 <div className="text-green-600 text-sm font-medium mb-3">{hostel.availability}</div>
 

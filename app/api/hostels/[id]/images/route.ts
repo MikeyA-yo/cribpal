@@ -55,7 +55,7 @@ export async function POST(
     // Check if hostel exists and belongs to this user
     const hostel = await db.collection('hostels').findOne({
       _id: new ObjectId(hostelId),
-      managerId: new ObjectId(session.user.id)
+      managerId: session.user.id // managerId is stored as string
     });
 
     if (!hostel) {
@@ -100,7 +100,7 @@ export async function POST(
     // Store image in database
     const imageDoc = {
       hostelId: new ObjectId(hostelId),
-      managerId: new ObjectId(session.user.id),
+      managerId: session.user.id, // managerId is stored as string
       filename: file.name,
       contentType: file.type,
       size: file.size,
@@ -219,7 +219,7 @@ export async function DELETE(
     // Delete the image (ensure it belongs to this user)
     const result = await db.collection('images').deleteOne({
       hostelId: new ObjectId(hostelId),
-      managerId: new ObjectId(session.user.id)
+      managerId: session.user.id // managerId is stored as string
     });
 
     if (result.deletedCount === 0) {
