@@ -56,7 +56,6 @@ const HostelManagerSignUp = () => {
         email: formData.email,
         password: formData.password,
         name: `${formData.firstName} ${formData.lastName}`,
-        
       });
 
       if (error) {
@@ -65,10 +64,26 @@ const HostelManagerSignUp = () => {
       }
 
       if (data?.user) {
-        // Update user with additional fields after successful signup
-        await authClient.updateUser({
-          name: `${formData.firstName} ${formData.lastName}`,
+        // Set user type to hostel_manager after successful signup
+        const setUserTypeResponse = await fetch('/api/user/set-usertype', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            userType: 'hostel_manager',
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            phone: formData.phone,
+            businessName: formData.businessName,
+          }),
         });
+
+        if (!setUserTypeResponse.ok) {
+          const errorData = await setUserTypeResponse.json();
+          setError(errorData.error || 'Failed to set user type');
+          return;
+        }
         
         router.push("/hostelmanager");
       }

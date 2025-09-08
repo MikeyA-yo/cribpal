@@ -86,7 +86,7 @@ export const useHostels = () => {
   };
 
   // Create a new hostel
-  const createHostel = async (hostelData: CreateHostelData): Promise<{ success: boolean; error?: string }> => {
+  const createHostel = async (hostelData: CreateHostelData): Promise<{ success: boolean; error?: string; hostel?: Hostel }> => {
     try {
       setError(null);
 
@@ -110,7 +110,7 @@ export const useHostels = () => {
         setHostels(prev => [data.hostel, ...prev]);
       }
 
-      return { success: true };
+      return { success: true, hostel: data.hostel };
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to create hostel';
       setError(errorMessage);

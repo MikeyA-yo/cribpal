@@ -56,7 +56,6 @@ const StudentSignUp = () => {
         password: formData.password,
         name: `${formData.firstName} ${formData.lastName}`,
       });
-      // Optionally, send additional user data to your backend here after successful sign up
 
       if (error) {
         setError(error.message || "Sign up failed");
@@ -64,6 +63,26 @@ const StudentSignUp = () => {
       }
 
       if (data?.user) {
+        // Set user type to student after successful signup
+        const setUserTypeResponse = await fetch('/api/user/set-usertype', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            userType: 'student',
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            university: formData.university,
+          }),
+        });
+
+        if (!setUserTypeResponse.ok) {
+          const errorData = await setUserTypeResponse.json();
+          setError(errorData.error || 'Failed to set user type');
+          return;
+        }
+
         router.push("/students");
       }
     } catch (err) {

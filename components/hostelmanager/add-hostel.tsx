@@ -3,6 +3,8 @@ import React, { useState } from "react";
 import { motion } from "motion/react";
 import { PlusCircle, MapPin, CheckCircle, X, Trash2, Edit2 } from "lucide-react";
 import { useHostels } from "@/hooks/useHostels";
+import ImageUpload from "./ImageUpload";
+import HostelImageDisplay from "./HostelImageDisplay";
 
 const defaultFeatures = [
   { label: "Power/Electricity", value: "Electricity" },
@@ -19,6 +21,8 @@ export default function AddHostel() {
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
+  const [createdHostelId, setCreatedHostelId] = useState<string | null>(null);
+  const [showImageUpload, setShowImageUpload] = useState(false);
   const [form, setForm] = useState({
     name: "",
     address: "",
@@ -64,8 +68,12 @@ export default function AddHostel() {
       other: form.other,
     });
 
-    if (result.success) {
-      setOpen(false);
+    if (result.success && result.hostel) {
+      // Store the created hostel ID for image upload
+      setCreatedHostelId(result.hostel._id);
+      setShowImageUpload(true);
+      
+      // Reset the form but keep the modal open for image upload
       setForm({ name: "", address: "", price: "", location: "", features: [], other: "" });
     } else {
       setSubmitError(result.error || "Failed to create hostel");
@@ -84,6 +92,24 @@ export default function AddHostel() {
       alert(`Failed to delete hostel: ${result.error}`);
     }
   }
+
+  const handleImageUploaded = (imageId: string) => {
+    console.log("Image uploaded with ID:", imageId);
+    // Close the modal and reset state
+    handleCloseModal();
+  };
+
+  const handleSkipImage = () => {
+    // Close the modal without uploading image
+    handleCloseModal();
+  };
+
+  const handleCloseModal = () => {
+    setOpen(false);
+    setShowImageUpload(false);
+    setCreatedHostelId(null);
+    setSubmitError("");
+  };
 
   return (
     <div className="p-4 md:p-8">
@@ -137,12 +163,18 @@ export default function AddHostel() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: idx * 0.1, duration: 0.5 }}
           >
-            {/* Use default image if no images provided */}
-            <img 
-              src={hostel.images?.[0] || "/room1.jpg"} 
-              alt={hostel.name} 
-              className="w-full h-44 object-cover" 
-            />
+            {/* Use HostelImageDisplay component or fallback to default image */}
+            <div className="w-full h-44 overflow-hidden">
+              <HostelImageDisplay 
+                hostelId={hostel._id}
+                canDelete={true}
+                onImageDeleted={() => {
+                  // Optionally refresh hostels or show a message
+                  console.log('Image deleted for hostel:', hostel._id);
+                }}
+                className="w-full h-44 object-cover"
+              />
+            </div>
             <div className="p-4 flex-1 flex flex-col">
               <div className="flex items-center gap-2 mb-1">
                 <h3 className="text-lg font-bold text-blue-800 flex-1">{hostel.name}</h3>
@@ -231,12 +263,14 @@ export default function AddHostel() {
           >
             <button
               className="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 text-gray-500"
-              onClick={() => setOpen(false)}
+              onClick={handleCloseModal}
               aria-label="Close dialog"
             >
               <X className="w-5 h-5" />
             </button>
-            <h3 className="text-xl font-bold text-blue-900 mb-4">Add a New Hostel</h3>
+            <h3 className="text-xl font-bold text-blue-900 mb-4">
+              {showImageUpload ? "Add Hostel Image" : "Add a New Hostel"}
+            </h3>
             
             {submitError && (
               <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm">
@@ -244,74 +278,98 @@ export default function AddHostel() {
               </div>
             )}
             
-            <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
-              <input
-                type="text"
-                name="name"
-                value={form.name}
-                onChange={handleChange}
-                placeholder="Hostel Name"
-                className="border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200"
-                required
-              />
-              <input
-                type="text"
-                name="address"
-                value={form.address}
-                onChange={handleChange}
-                placeholder="Address"
-                className="border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200"
-                required
-              />
-              <input
-                type="text"
-                name="price"
-                value={form.price}
-                onChange={handleChange}
-                placeholder="Price (e.g. ₦350,000/year)"
-                className="border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200"
-                required
-              />
-              <input
-                type="url"
-                name="location"
-                value={form.location}
-                onChange={handleChange}
-                placeholder="Google Maps Link"
-                className="border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200"
-                required
-              />
-              <div>
-                <div className="font-semibold mb-2">Features</div>
-                <div className="grid grid-cols-2 gap-2">
-                  {defaultFeatures.map((f) => (
-                    <label key={f.value} className="flex items-center gap-2 text-sm">
-                      <input
-                        type="checkbox"
-                        checked={form.features.includes(f.value)}
-                        onChange={() => handleCheckbox(f.value)}
-                        className="accent-blue-600"
-                      />
-                      {f.label}
-                    </label>
-                  ))}
+            {showImageUpload && createdHostelId ? (
+              // Image upload step
+              <div className="text-center">
+                <div className="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg">
+                  <p className="font-semibold">Hostel created successfully! 🎉</p>
+                  <p className="text-sm">Now add an image to make your hostel more appealing</p>
                 </div>
+                
+                <ImageUpload 
+                  hostelId={createdHostelId}
+                  onImageUploaded={handleImageUploaded}
+                />
+                
+                <button
+                  type="button"
+                  onClick={handleSkipImage}
+                  className="mt-4 px-4 py-2 text-sm text-gray-600 hover:text-gray-800 underline"
+                >
+                  Skip for now
+                </button>
               </div>
-              <textarea
-                name="other"
-                value={form.other}
-                onChange={handleChange}
-                placeholder="Other notes or amenities..."
-                className="border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200 min-h-[60px]"
-              />
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="bg-blue-700 text-white px-6 py-2 rounded-lg font-semibold shadow hover:bg-blue-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isSubmitting ? "Adding Hostel..." : "Add Hostel"}
-              </button>
-            </form>
+            ) : (
+              // Hostel creation form
+              <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+                <input
+                  type="text"
+                  name="name"
+                  value={form.name}
+                  onChange={handleChange}
+                  placeholder="Hostel Name"
+                  className="border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                  required
+                />
+                <input
+                  type="text"
+                  name="address"
+                  value={form.address}
+                  onChange={handleChange}
+                  placeholder="Address"
+                  className="border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                  required
+                />
+                <input
+                  type="text"
+                  name="price"
+                  value={form.price}
+                  onChange={handleChange}
+                  placeholder="Price (e.g. ₦350,000/year)"
+                  className="border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                  required
+                />
+                <input
+                  type="url"
+                  name="location"
+                  value={form.location}
+                  onChange={handleChange}
+                  placeholder="Google Maps Link"
+                  className="border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                  required
+                />
+                <div>
+                  <div className="font-semibold mb-2">Features</div>
+                  <div className="grid grid-cols-2 gap-2">
+                    {defaultFeatures.map((f) => (
+                      <label key={f.value} className="flex items-center gap-2 text-sm">
+                        <input
+                          type="checkbox"
+                          checked={form.features.includes(f.value)}
+                          onChange={() => handleCheckbox(f.value)}
+                          className="accent-blue-600"
+                        />
+                        {f.label}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+                <textarea
+                  name="other"
+                  value={form.other}
+                  onChange={handleChange}
+                  placeholder="Other notes or amenities..."
+                  className="border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200 min-h-[60px]"
+                />
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="bg-blue-700 text-white px-6 py-2 rounded-lg font-semibold shadow hover:bg-blue-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isSubmitting ? "Adding Hostel..." : "Add Hostel"}
+                </button>
+              </form>
+            )}
           </motion.div>
         </motion.div>
       )}
