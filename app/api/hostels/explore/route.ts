@@ -28,50 +28,46 @@ export async function GET(request: NextRequest) {
     const search = url.searchParams.get('search') || '';
     const minPrice = url.searchParams.get('minPrice');
     const maxPrice = url.searchParams.get('maxPrice');
-    const features = url.searchParams.get('features')?.split(',') || [];
+    const features = url.searchParams.get('features')?.split(',').filter(f => f.trim()) || [];
 
-    // Build filter query
-    const filter: any = {
-      isActive: true,
-      isVerified: true, // Only show verified hostels to students
-    };
-
-    // Add search filter (search in name, address, location)
-    if (search) {
-      filter.$or = [
-        { name: { $regex: search, $options: 'i' } },
-        { address: { $regex: search, $options: 'i' } },
-        { location: { $regex: search, $options: 'i' } },
-      ];
-    }
-
-    // Add features filter
-    if (features.length > 0) {
-      filter.features = { $in: features };
-    }
-
-    // Fetch hostels
+    // Fetch all active and verified hostels first
     const hostels = await hostelsCollection
-      .find(filter)
+      .find({
+        isActive: true,
+        isVerified: true, // Only show verified hostels to students
+      })
       .sort({ createdAt: -1 })
-      .limit(50) // Limit to 50 hostels for performance
+      .limit(100) // Reasonable limit for performance
       .toArray();
 
-    // Filter by price if provided (price is stored as string, so we need to parse)
+    // Apply filters manually
     let filteredHostels = hostels;
+
+    // Apply search filter
+    if (search.trim()) {
+      const searchTerm = search.trim().toLowerCase();
+      filteredHostels = filteredHostels.filter(hostel =>
+        hostel.name.toLowerCase().includes(searchTerm) ||
+        hostel.address.toLowerCase().includes(searchTerm) ||
+        (hostel.location && hostel.location.toLowerCase().includes(searchTerm))
+      );
+    }
+
+    // Apply price filter
     if (minPrice || maxPrice) {
-      filteredHostels = hostels.filter(hostel => {
-        // Extract numeric value from price string (e.g., "₦280,000/year" -> 280000)
-        const priceMatch = hostel.price.match(/[\d,]+/);
-        if (!priceMatch) return true;
-        
-        const priceValue = parseInt(priceMatch[0].replace(/,/g, ''));
-        
-        if (minPrice && priceValue < parseInt(minPrice)) return false;
-        if (maxPrice && priceValue > parseInt(maxPrice)) return false;
-        
+      filteredHostels = filteredHostels.filter(hostel => {
+        const price = hostel.price;
+        if (minPrice && price < parseInt(minPrice)) return false;
+        if (maxPrice && price > parseInt(maxPrice)) return false;
         return true;
       });
+    }
+
+    // Apply features filter
+    if (features.length > 0) {
+      filteredHostels = filteredHostels.filter(hostel =>
+        features.some(feature => hostel.features && hostel.features.includes(feature))
+      );
     }
 
     // Increment view count for fetched hostels (optional)
@@ -90,6 +86,7 @@ export async function GET(request: NextRequest) {
         _id: hostel._id.toString(),
       })),
       total: filteredHostels.length,
+      totalAvailable: hostels.length, // Total before filtering
     });
 
   } catch (error) {
