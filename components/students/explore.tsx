@@ -163,8 +163,10 @@ export default function Explore() {
 
   const getImageUrl = (hostel: any) => {
     if (hostel.images && hostel.images.length > 0) {
-      return hostel.images[0].startsWith('data:') ? hostel.images[0] : `/room${Math.floor(Math.random() * 8) + 1}.jpg`;
+      // Use the actual database image if it exists
+      return hostel.images[0];
     }
+    // Fallback to random room image if no database image
     return `/room${Math.floor(Math.random() * 8) + 1}.jpg`;
   };
 

@@ -10,6 +10,25 @@ export interface ExploreFilters {
   features?: string[];
 }
 
+// Function to fetch image for a specific hostel
+const fetchHostelImage = async (hostelId: string): Promise<string | null> => {
+  try {
+    const response = await fetch(`/api/hostels/${hostelId}/images`, {
+      method: 'GET',
+      credentials: 'include',
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      return data.image?.dataUrl || null;
+    }
+    return null;
+  } catch (error) {
+    console.error(`Error fetching image for hostel ${hostelId}:`, error);
+    return null;
+  }
+};
+
 export const useExploreHostels = () => {
   const [hostels, setHostels] = useState<Hostel[]>([]);
   const [loading, setLoading] = useState(true);
@@ -45,7 +64,20 @@ export const useExploreHostels = () => {
         throw new Error(data.error || 'Failed to fetch hostels');
       }
 
-      setHostels(data.hostels || []);
+      const hostelsData = data.hostels || [];
+
+      // Fetch images for each hostel
+      const hostelsWithImages = await Promise.all(
+        hostelsData.map(async (hostel: any) => {
+          const imageUrl = await fetchHostelImage(hostel._id);
+          return {
+            ...hostel,
+            images: imageUrl ? [imageUrl] : [], // Add image to images array
+          };
+        })
+      );
+
+      setHostels(hostelsWithImages);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch hostels');
       console.error('Error fetching hostels for exploration:', err);
