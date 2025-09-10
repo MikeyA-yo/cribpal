@@ -64,18 +64,17 @@ export default function Bookings() {
                     </span>
                   ))}
                 </div>
-                {/* Map iframe */}
-                <div className="w-full rounded-lg overflow-hidden mb-3 border border-green-100">
-                  <iframe
-                    src={hostel.location}
-                    width="100%"
-                    height="180"
-                    style={{ border: 0 }}
-                    allowFullScreen
-                    loading="lazy"
-                    referrerPolicy="no-referrer-when-downgrade"
-                    title={hostel.name + " map"}
-                  />
+                {/* Map link */}
+                <div className="w-full mb-3">
+                  <a
+                    href={hostel.location.replace('output=embed', '')}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2 w-full py-3 px-4 bg-green-50 border border-green-200 rounded-lg text-green-700 hover:bg-green-100 transition-colors"
+                  >
+                    <MapPin className="w-4 h-4" />
+                    View Location on Maps
+                  </a>
                 </div>
                 <div className="flex gap-3 mt-auto">
                   <button

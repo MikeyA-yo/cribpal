@@ -148,7 +148,7 @@ export async function POST(request: NextRequest) {
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       expires: sessionExpiry,
-      path: '/admin'
+      path: '/' // Changed from '/admin' to '/' to make it available everywhere
     });
 
     return response;

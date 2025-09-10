@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       expires: new Date(0), // Expire immediately
-      path: '/admin'
+      path: '/' // Changed from '/admin' to '/' to match login
     });
 
     return response;

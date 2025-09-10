@@ -1,15 +1,24 @@
 import { MongoClient } from "mongodb";
 import { cookies } from "next/headers";
+import { NextRequest } from "next/server";
 
 // MongoDB connection
 const client = new MongoClient(process.env.MONGO_URI!);
 const db = client.db("cribpal");
 const sessionsCollection = db.collection("admin_sessions");
 
-export async function getAdminSession() {
+export async function getAdminSession(request?: NextRequest) {
   try {
-    const cookieStore = await cookies();
-    const sessionToken = cookieStore.get('admin-session')?.value;
+    let sessionToken: string | undefined;
+    
+    if (request) {
+      // For API routes, get cookie from request
+      sessionToken = request.cookies.get('admin-session')?.value;
+    } else {
+      // For server components, use next/headers
+      const cookieStore = await cookies();
+      sessionToken = cookieStore.get('admin-session')?.value;
+    }
 
     if (!sessionToken) {
       return null;

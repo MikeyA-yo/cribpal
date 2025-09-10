@@ -385,19 +385,18 @@ export default function Explore() {
                   )}
                 </div>
 
-                {/* Map iframe */}
+                {/* Map link */}
                 {hostel.location && (
-                  <div className="w-full rounded-lg overflow-hidden mb-3 border border-blue-100">
-                    <iframe
-                      src={hostel.location}
-                      width="100%"
-                      height="180"
-                      style={{ border: 0 }}
-                      allowFullScreen
-                      loading="lazy"
-                      referrerPolicy="no-referrer-when-downgrade"
-                      title={hostel.name + " map"}
-                    />
+                  <div className="w-full mb-3">
+                    <a
+                      href={hostel.location.replace('output=embed', '')}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center gap-2 w-full py-3 px-4 bg-blue-50 border border-blue-200 rounded-lg text-blue-700 hover:bg-blue-100 transition-colors"
+                    >
+                      <MapPin className="w-4 h-4" />
+                      View Location on Maps
+                    </a>
                   </div>
                 )}
 
