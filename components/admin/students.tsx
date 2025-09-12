@@ -338,68 +338,76 @@ export default function AdminStudents() {
         </div>
       ) : (
         <>
-          {/* Desktop Table View */}
-          <div className="hidden lg:block bg-white rounded-xl shadow-md overflow-hidden border border-gray-100">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50 border-b border-gray-200">
-                  <tr>
-                    <th className="text-left py-4 px-6 font-semibold text-gray-900">Student</th>
-                    <th className="text-left py-4 px-6 font-semibold text-gray-900">Contact</th>
-                    <th className="text-left py-4 px-6 font-semibold text-gray-900">University</th>
-                    <th className="text-left py-4 px-6 font-semibold text-gray-900">Joined</th>
-                    <th className="text-left py-4 px-6 font-semibold text-gray-900">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                  {students.map((student) => (
-                    <tr key={student._id} className="hover:bg-gray-50 transition">
-                      <td className="py-4 px-6">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                            <span className="text-blue-700 font-semibold">
-                              {student.name ? student.name.charAt(0).toUpperCase() : 'S'}
-                            </span>
-                          </div>
-                          <div>
-                            <p className="font-semibold text-gray-900">{student.name || 'No name'}</p>
-                            <p className="text-sm text-gray-500">{student.email}</p>
-                          </div>
-                        </div>
-                      </td>
-                      
-                      <td className="py-4 px-6">
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-2 text-sm text-gray-600">
-                            <Mail className="w-4 h-4" />
-                            <span>{student.email}</span>
-                          </div>
-                          {student.phone && (
-                            <div className="flex items-center gap-2 text-sm text-gray-600">
-                              <Phone className="w-4 h-4" />
-                              <span>{student.phone}</span>
-                            </div>
-                          )}
-                        </div>
-                      </td>
-                      
-                      <td className="py-4 px-6">
-                        <div className="flex items-center gap-2">
-                          <GraduationCap className="w-4 h-4 text-gray-400" />
-                          <span className="text-sm text-gray-900">
-                            {student.university || 'Not specified'}
+          {/* Desktop List View (Card-based instead of table) */}
+          <div className="hidden lg:block bg-white rounded-xl shadow-md border border-gray-100">
+            {/* Header */}
+            <div className="bg-gray-50 border-b border-gray-200 px-6 py-4">
+              <div className="grid grid-cols-12 gap-4 font-semibold text-gray-900 text-sm">
+                <div className="col-span-4">Student</div>
+                <div className="col-span-3">Contact</div>
+                <div className="col-span-2">University</div>
+                <div className="col-span-2">Joined</div>
+                <div className="col-span-1">Actions</div>
+              </div>
+            </div>
+            
+            {/* Students List */}
+            <div className="divide-y divide-gray-200">
+              {students.map((student) => (
+                <div key={student._id} className="px-6 py-4 hover:bg-gray-50 transition">
+                  <div className="grid grid-cols-12 gap-4 items-center">
+                    {/* Student Info */}
+                    <div className="col-span-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                          <span className="text-blue-700 font-semibold">
+                            {student.name ? student.name.charAt(0).toUpperCase() : 'S'}
                           </span>
                         </div>
-                      </td>
-                      
-                      <td className="py-4 px-6">
-                        <div className="flex items-center gap-2 text-sm text-gray-600">
-                          <Calendar className="w-4 h-4" />
-                          <span>{formatDate(student.createdAt)}</span>
+                        <div className="min-w-0 flex-1">
+                          <p className="font-semibold text-gray-900 truncate">{student.name || 'No name'}</p>
+                          <p className="text-sm text-gray-500 truncate">{student.email}</p>
                         </div>
-                      </td>
-                      
-                      <td className="py-4 px-6">
+                      </div>
+                    </div>
+                    
+                    {/* Contact */}
+                    <div className="col-span-3">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                          <Mail className="w-4 h-4 flex-shrink-0" />
+                          <span className="truncate">{student.email}</span>
+                        </div>
+                        {student.phone && (
+                          <div className="flex items-center gap-2 text-sm text-gray-600">
+                            <Phone className="w-4 h-4 flex-shrink-0" />
+                            <span className="truncate">{student.phone}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    
+                    {/* University */}
+                    <div className="col-span-2">
+                      <div className="flex items-center gap-2">
+                        <GraduationCap className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                        <span className="text-sm text-gray-900 truncate">
+                          {student.university || 'Not specified'}
+                        </span>
+                      </div>
+                    </div>
+                    
+                    {/* Joined Date */}
+                    <div className="col-span-2">
+                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <Calendar className="w-4 h-4 flex-shrink-0" />
+                        <span className="truncate">{formatDate(student.createdAt)}</span>
+                      </div>
+                    </div>
+                    
+                    {/* Actions */}
+                    <div className="col-span-1">
+                      <div className="flex justify-center">
                         <button
                           onClick={() => {
                             setSelectedStudent(student);
@@ -409,11 +417,11 @@ export default function AdminStudents() {
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
 
             {/* Desktop Pagination */}
