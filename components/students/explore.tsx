@@ -19,6 +19,7 @@ export default function Explore() {
   const [searchTerm, setSearchTerm] = useState("");
   const [savedHostels, setSavedHostels] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
+  const [savingHostel, setSavingHostel] = useState<string | null>(null);
   const [tempFilters, setTempFilters] = useState({
     minPrice: "",
     maxPrice: "",
@@ -112,12 +113,57 @@ export default function Explore() {
   // Use backend data if available, otherwise use dummy data
   const displayHostels = hostels.length > 0 ? hostels : (error ? dummyHostels : []);
 
-  const toggleSave = (hostelId: string) => {
-    setSavedHostels(prev => 
-      prev.includes(hostelId) 
-        ? prev.filter(id => id !== hostelId)
-        : [...prev, hostelId]
-    );
+  // Load saved hostels on component mount
+  React.useEffect(() => {
+    loadSavedHostels();
+  }, []);
+
+  const loadSavedHostels = async () => {
+    try {
+      const response = await fetch('/api/user/saved-hostels');
+      const result = await response.json();
+      
+      if (result.success) {
+        setSavedHostels(result.lovedHostels || []);
+      }
+    } catch (error) {
+      console.error('Error loading saved hostels:', error);
+    }
+  };
+
+  const toggleSave = async (hostelId: string) => {
+    if (savingHostel) return; // Prevent multiple simultaneous requests
+    
+    setSavingHostel(hostelId);
+    const isCurrentlySaved = savedHostels.includes(hostelId);
+    const action = isCurrentlySaved ? 'unsave' : 'save';
+    
+    try {
+      const response = await fetch('/api/user/saved-hostels', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          hostelId,
+          action
+        })
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        setSavedHostels(result.lovedHostels || []);
+      } else {
+        console.error('Error saving hostel:', result.error);
+        // Optionally show error message to user
+      }
+    } catch (error) {
+      console.error('Error toggling hostel save:', error);
+      // Optionally show error message to user
+    } finally {
+      setSavingHostel(null);
+    }
   };
 
   const handleSearch = async (value: string) => {
@@ -342,13 +388,18 @@ export default function Explore() {
                 <img src={getImageUrl(hostel)} alt={hostel.name} className="w-full h-44 object-cover" />
                 <button
                   onClick={() => toggleSave(hostel._id)}
+                  disabled={savingHostel === hostel._id}
                   className={`absolute top-3 right-3 p-2 rounded-full shadow-lg transition ${
                     savedHostels.includes(hostel._id)
                       ? 'bg-red-500 text-white hover:bg-red-600'
                       : 'bg-white text-gray-600 hover:bg-gray-100'
-                  }`}
+                  } ${savingHostel === hostel._id ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
-                  <Heart className={`w-4 h-4 ${savedHostels.includes(hostel._id) ? 'fill-current' : ''}`} />
+                  {savingHostel === hostel._id ? (
+                    <div className="w-4 h-4 animate-spin rounded-full border-2 border-current border-t-transparent"></div>
+                  ) : (
+                    <Heart className={`w-4 h-4 ${savedHostels.includes(hostel._id) ? 'fill-current' : ''}`} />
+                  )}
                 </button>
                 
                 {/* Views Badge */}
@@ -387,36 +438,29 @@ export default function Explore() {
                   )}
                 </div>
 
-                {/* Map link */}
-                {hostel.location && (
-                  <div className="w-full mb-3">
-                    <a
-                      href={hostel.location.replace('output=embed', '')}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-center gap-2 w-full py-3 px-4 bg-blue-50 border border-blue-200 rounded-lg text-blue-700 hover:bg-blue-100 transition-colors"
-                    >
-                      <MapPin className="w-4 h-4" />
-                      View Location on Maps
-                    </a>
-                  </div>
-                )}
-
-                <div className="flex gap-3 mt-auto">
+                <div className="flex gap-2 mt-auto">
                   <button
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition font-semibold"
+                    className="flex-1 flex items-center justify-center gap-1 px-3 py-1.5 bg-blue-600 text-white rounded-md shadow hover:bg-blue-700 transition text-sm font-medium"
                   >
-                    <Eye className="w-4 h-4" /> View Details
+                    <Eye className="w-3 h-3" /> Details
                   </button>
                   <button
                     onClick={() => toggleSave(hostel._id)}
-                    className={`px-4 py-2 rounded-lg shadow transition font-semibold ${
+                    disabled={savingHostel === hostel._id}
+                    className={`px-3 py-1.5 rounded-md shadow transition text-sm font-medium ${
                       savedHostels.includes(hostel._id)
                         ? 'bg-green-600 text-white hover:bg-green-700'
                         : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                    }`}
+                    } ${savingHostel === hostel._id ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
-                    {savedHostels.includes(hostel._id) ? 'Saved' : 'Save'}
+                    {savingHostel === hostel._id ? (
+                      <div className="flex items-center gap-1">
+                        <div className="w-3 h-3 animate-spin rounded-full border-2 border-current border-t-transparent"></div>
+                        <span className="text-xs">Saving</span>
+                      </div>
+                    ) : (
+                      savedHostels.includes(hostel._id) ? 'Saved' : 'Save'
+                    )}
                   </button>
                 </div>
               </div>
