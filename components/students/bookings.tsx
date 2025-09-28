@@ -1,7 +1,8 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { motion } from "motion/react";
-import { CheckCircle, MapPin, CreditCard, Eye } from "lucide-react";
+import { CheckCircle, MapPin, CreditCard, Eye, Star } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 // Price formatting function
 function formatPrice(price: number): string {
@@ -21,7 +22,10 @@ interface Hostel {
 }
 
 export default function Bookings() {
+  const router = useRouter();
   const [hostels, setHostels] = useState<Hostel[]>([]);
+  const [hostelImages, setHostelImages] = useState<{[key: string]: string}>({});
+  const [hostelRatings, setHostelRatings] = useState<{[key: string]: {averageRating: number, totalRatings: number}}>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -59,7 +63,67 @@ export default function Bookings() {
       const hostelsResult = await hostelsResponse.json();
 
       if (hostelsResult.success) {
-        setHostels(hostelsResult.hostels || []);
+        const hostelsData = hostelsResult.hostels || [];
+        setHostels(hostelsData);
+        
+        // Fetch images for each hostel
+        const imagePromises = hostelsData.map(async (hostel: Hostel) => {
+          try {
+            const imageResponse = await fetch(`/api/hostels/${hostel._id}/images`);
+            const imageResult = await imageResponse.json();
+            
+            if (imageResult.success && imageResult.image) {
+              return { hostelId: hostel._id, imageUrl: imageResult.image.dataUrl };
+            }
+            return { hostelId: hostel._id, imageUrl: null };
+          } catch (error) {
+            console.error(`Failed to fetch image for hostel ${hostel._id}:`, error);
+            return { hostelId: hostel._id, imageUrl: null };
+          }
+        });
+        
+        const imageResults = await Promise.all(imagePromises);
+        const imageMap: {[key: string]: string} = {};
+        
+        imageResults.forEach(result => {
+          if (result.imageUrl) {
+            imageMap[result.hostelId] = result.imageUrl;
+          }
+        });
+        
+        setHostelImages(imageMap);
+        
+        // Fetch ratings for each hostel
+        const ratingPromises = hostelsData.map(async (hostel: Hostel) => {
+          try {
+            const ratingResponse = await fetch(`/api/hostels/${hostel._id}/ratings`);
+            const ratingResult = await ratingResponse.json();
+            
+            if (ratingResult.success) {
+              return { 
+                hostelId: hostel._id, 
+                averageRating: ratingResult.data.averageRating || 0,
+                totalRatings: ratingResult.data.totalRatings || 0
+              };
+            }
+            return { hostelId: hostel._id, averageRating: 0, totalRatings: 0 };
+          } catch (error) {
+            console.error(`Failed to fetch ratings for hostel ${hostel._id}:`, error);
+            return { hostelId: hostel._id, averageRating: 0, totalRatings: 0 };
+          }
+        });
+        
+        const ratingResults = await Promise.all(ratingPromises);
+        const ratingMap: {[key: string]: {averageRating: number, totalRatings: number}} = {};
+        
+        ratingResults.forEach(result => {
+          ratingMap[result.hostelId] = {
+            averageRating: result.averageRating,
+            totalRatings: result.totalRatings
+          };
+        });
+        
+        setHostelRatings(ratingMap);
       } else {
         throw new Error(hostelsResult.error || 'Failed to fetch hostel details');
       }
@@ -73,9 +137,11 @@ export default function Bookings() {
   };
 
   const getImageUrl = (hostel: Hostel) => {
-    if (hostel.images && hostel.images.length > 0) {
-      return hostel.images[0];
+    // First check if we have a fetched image from the database
+    if (hostelImages[hostel._id]) {
+      return hostelImages[hostel._id];
     }
+    
     // Fallback to random room image
     return `/room${Math.floor(Math.random() * 8) + 1}.jpg`;
   };
@@ -143,6 +209,14 @@ export default function Bookings() {
                     })()}</span>
                   </span>
                 </div>
+                {/* Rating Display */}
+                {hostelRatings[hostel._id] && hostelRatings[hostel._id].totalRatings > 0 && (
+                  <div className="flex items-center gap-1 text-yellow-600 text-sm mb-1">
+                    <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                    <span className="font-medium">{hostelRatings[hostel._id].averageRating}</span>
+                    <span className="text-gray-500">({hostelRatings[hostel._id].totalRatings} reviews)</span>
+                  </div>
+                )}
                 <div className="text-green-700 font-semibold mb-2">{formatPrice(hostel.price)}</div>
                 
                 {hostel.other && (
@@ -157,11 +231,13 @@ export default function Bookings() {
                 </div>
                 <div className="flex gap-2 mt-auto">
                   <button
+                    onClick={() => router.push(`/students/explore/${hostel._id}`)}
                     className="flex-1 flex items-center justify-center gap-2 px-3 py-1.5 bg-green-600 text-white rounded-md shadow hover:bg-green-700 transition font-semibold text-sm"
                   >
                     <Eye className="w-3 h-3" /> Inspection
                   </button>
                   <button
+                    onClick={() => router.push(`/students/explore/${hostel._id}`)}
                     className="flex-1 flex items-center justify-center gap-2 px-3 py-1.5 bg-blue-600 text-white rounded-md shadow hover:bg-blue-700 transition font-semibold text-sm"
                   >
                     <CreditCard className="w-3 h-3" /> Payment

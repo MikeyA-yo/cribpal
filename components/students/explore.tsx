@@ -1,8 +1,9 @@
 "use client";
 import React, { useState } from "react";
 import { motion } from "motion/react";
-import { CheckCircle, MapPin, Heart, Eye, Search, Filter, X, DollarSign } from "lucide-react";
+import { CheckCircle, MapPin, Heart, Eye, Search, Filter, X, DollarSign, Star } from "lucide-react";
 import { useExploreHostels } from "@/hooks/useExploreHostels";
+import { useRouter } from "next/navigation";
 
 // Price formatting function
 function formatPrice(price: number): string {
@@ -15,9 +16,12 @@ const availableFeatures = [
 ];
 
 export default function Explore() {
+  const router = useRouter();
   const { hostels, loading, error, filters, applyFilters, clearFilters } = useExploreHostels();
   const [searchTerm, setSearchTerm] = useState("");
   const [savedHostels, setSavedHostels] = useState<string[]>([]);
+  const [hostelImages, setHostelImages] = useState<{[key: string]: string}>({});
+  const [hostelRatings, setHostelRatings] = useState<{[key: string]: {averageRating: number, totalRatings: number}}>({});
   const [showFilters, setShowFilters] = useState(false);
   const [savingHostel, setSavingHostel] = useState<string | null>(null);
   const [tempFilters, setTempFilters] = useState({
@@ -118,6 +122,75 @@ export default function Explore() {
     loadSavedHostels();
   }, []);
 
+  // Load images and ratings when hostels change
+  React.useEffect(() => {
+    if (displayHostels.length > 0) {
+      fetchHostelImages();
+      fetchHostelRatings();
+    }
+  }, [hostels]);
+
+  const fetchHostelImages = async () => {
+    const imagePromises = displayHostels.map(async (hostel) => {
+      try {
+        const imageResponse = await fetch(`/api/hostels/${hostel._id}/images`);
+        const imageResult = await imageResponse.json();
+        
+        if (imageResult.success && imageResult.image) {
+          return { hostelId: hostel._id, imageUrl: imageResult.image.dataUrl };
+        }
+        return { hostelId: hostel._id, imageUrl: null };
+      } catch (error) {
+        console.error(`Failed to fetch image for hostel ${hostel._id}:`, error);
+        return { hostelId: hostel._id, imageUrl: null };
+      }
+    });
+    
+    const imageResults = await Promise.all(imagePromises);
+    const imageMap: {[key: string]: string} = {};
+    
+    imageResults.forEach(result => {
+      if (result.imageUrl) {
+        imageMap[result.hostelId] = result.imageUrl;
+      }
+    });
+    
+    setHostelImages(imageMap);
+  };
+
+  const fetchHostelRatings = async () => {
+    const ratingPromises = displayHostels.map(async (hostel) => {
+      try {
+        const ratingResponse = await fetch(`/api/hostels/${hostel._id}/ratings`);
+        const ratingResult = await ratingResponse.json();
+        
+        if (ratingResult.success) {
+          return { 
+            hostelId: hostel._id, 
+            averageRating: ratingResult.data.averageRating || 0,
+            totalRatings: ratingResult.data.totalRatings || 0
+          };
+        }
+        return { hostelId: hostel._id, averageRating: 0, totalRatings: 0 };
+      } catch (error) {
+        console.error(`Failed to fetch ratings for hostel ${hostel._id}:`, error);
+        return { hostelId: hostel._id, averageRating: 0, totalRatings: 0 };
+      }
+    });
+    
+    const ratingResults = await Promise.all(ratingPromises);
+    const ratingMap: {[key: string]: {averageRating: number, totalRatings: number}} = {};
+    
+    ratingResults.forEach(result => {
+      ratingMap[result.hostelId] = {
+        averageRating: result.averageRating,
+        totalRatings: result.totalRatings
+      };
+    });
+    
+    setHostelRatings(ratingMap);
+  };
+
   const loadSavedHostels = async () => {
     try {
       const response = await fetch('/api/user/saved-hostels');
@@ -208,11 +281,12 @@ export default function Explore() {
   };
 
   const getImageUrl = (hostel: any) => {
-    if (hostel.images && hostel.images.length > 0) {
-      // Use the actual database image if it exists
-      return hostel.images[0];
+    // First check if we have a fetched image from the database
+    if (hostelImages[hostel._id]) {
+      return hostelImages[hostel._id];
     }
-    // Fallback to random room image if no database image
+    
+    // Fallback to random room image
     return `/room${Math.floor(Math.random() * 8) + 1}.jpg`;
   };
 
@@ -416,6 +490,14 @@ export default function Explore() {
                       <MapPin className="w-4 h-4" />
                       <span>{hostel.address}</span>
                     </div>
+                    {/* Rating Display */}
+                    {hostelRatings[hostel._id] && hostelRatings[hostel._id].totalRatings > 0 && (
+                      <div className="flex items-center gap-1 text-yellow-600 text-sm">
+                        <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                        <span className="font-medium">{hostelRatings[hostel._id].averageRating}</span>
+                        <span className="text-gray-500">({hostelRatings[hostel._id].totalRatings})</span>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -440,6 +522,7 @@ export default function Explore() {
 
                 <div className="flex gap-2 mt-auto">
                   <button
+                    onClick={() => router.push(`/students/explore/${hostel._id}`)}
                     className="flex-1 flex items-center justify-center gap-1 px-3 py-1.5 bg-blue-600 text-white rounded-md shadow hover:bg-blue-700 transition text-sm font-medium"
                   >
                     <Eye className="w-3 h-3" /> Details
