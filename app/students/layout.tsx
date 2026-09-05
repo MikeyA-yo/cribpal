@@ -4,8 +4,13 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 
 export default async function StudentsLayout({ children }: { children: React.ReactNode }) {
-  const session = await auth.api.getSession({ headers: await headers() });
-  const user = session?.user as any;
+  let user = null;
+  try {
+    const session = await auth.api.getSession({ headers: await headers() });
+    user = session?.user as any;
+  } catch (err) {
+    console.warn("MongoDB cluster paused or unavailable, using fallback student session:", err);
+  }
 
   return (
     <div className="min-h-screen flex bg-blue-50">

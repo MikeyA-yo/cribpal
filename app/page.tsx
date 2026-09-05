@@ -50,12 +50,12 @@ export default function Home() {
     const params = new URLSearchParams();
     if (searchLocation) params.append("search", searchLocation);
     if (searchMaxPrice) params.append("maxPrice", searchMaxPrice);
-    router.push(`/students?${params.toString()}`);
+    router.push(`/explore?${params.toString()}`);
   };
 
   const handleQuickCampus = (campusName: string) => {
     setSearchLocation(campusName);
-    router.push(`/students?search=${encodeURIComponent(campusName)}`);
+    router.push(`/explore?search=${encodeURIComponent(campusName)}`);
   };
 
   const featuredHostels = [
@@ -388,7 +388,7 @@ export default function Home() {
 
                     {/* Direct CTA */}
                     <Link
-                      href="/students"
+                      href="/explore"
                       className="w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl bg-[#0B1E3F] hover:bg-[#007BFF] text-white font-bold text-sm transition-colors"
                     >
                       <span>Explore Accommodations</span>
@@ -694,7 +694,7 @@ export default function Home() {
                       </div>
                     </div>
                     <Link
-                      href={`/students?search=${encodeURIComponent(hostel.name)}`}
+                      href={`/explore?search=${encodeURIComponent(hostel.name)}`}
                       className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#007BFF] hover:bg-[#0062cc] text-white text-xs font-bold transition-all shadow-sm"
                     >
                       <span>View Details</span>
@@ -709,7 +709,7 @@ export default function Home() {
           {/* View All Button */}
           <div className="mt-14 text-center">
             <Link
-              href="/students"
+              href="/explore"
               className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl bg-[#0B1E3F] hover:bg-[#007BFF] text-white font-bold text-base transition-all shadow-lg hover:shadow-xl cursor-pointer"
             >
               <span>Explore All Verified Hostels in Nigeria</span>
@@ -972,14 +972,14 @@ export default function Home() {
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link
-                  href="/students"
+                  href="/explore"
                   className="px-9 py-4 rounded-2xl font-bold text-base bg-white text-[#0B1E3F] hover:bg-[#F9FBFF] hover:scale-105 shadow-xl transition-all inline-flex items-center justify-center gap-2"
                 >
                   <span>Explore Available Hostels</span>
                   <ArrowRight className="w-4 h-4" />
                 </Link>
                 <Link
-                  href="/students"
+                  href="/explore"
                   className="px-9 py-4 rounded-2xl font-bold text-base bg-white/10 hover:bg-white/20 border border-white/20 text-white transition-all inline-flex items-center justify-center"
                 >
                   View Verified Campuses
@@ -1018,11 +1018,11 @@ export default function Home() {
             <div>
               <h4 className="text-sm font-bold text-white uppercase tracking-wider mb-4">Explore</h4>
               <ul className="space-y-2.5 text-sm text-white/70">
-                <li><Link href="/students" className="hover:text-white transition-colors">Browse Hostels</Link></li>
-                <li><Link href="/students?search=UNILAG" className="hover:text-white transition-colors">UNILAG Hostels</Link></li>
-                <li><Link href="/students?search=UI" className="hover:text-white transition-colors">UI Ibadan Hostels</Link></li>
-                <li><Link href="/students?search=OAU" className="hover:text-white transition-colors">OAU Ile-Ife Hostels</Link></li>
-                <li><Link href="/students?search=FUTA" className="hover:text-white transition-colors">FUTA Akure Hostels</Link></li>
+                <li><Link href="/explore" className="hover:text-white transition-colors">Browse Hostels</Link></li>
+                <li><Link href="/explore?search=UNILAG" className="hover:text-white transition-colors">UNILAG Hostels</Link></li>
+                <li><Link href="/explore?search=UI" className="hover:text-white transition-colors">UI Ibadan Hostels</Link></li>
+                <li><Link href="/explore?search=OAU" className="hover:text-white transition-colors">OAU Ile-Ife Hostels</Link></li>
+                <li><Link href="/explore?search=FUTA" className="hover:text-white transition-colors">FUTA Akure Hostels</Link></li>
               </ul>
             </div>
 
@@ -1030,10 +1030,10 @@ export default function Home() {
             <div>
               <h4 className="text-sm font-bold text-white uppercase tracking-wider mb-4">Platform</h4>
               <ul className="space-y-2.5 text-sm text-white/70">
-                <li><Link href="/students" className="hover:text-white transition-colors">Verification Process</Link></li>
-                <li><Link href="/students" className="hover:text-white transition-colors">Student Safety Guide</Link></li>
-                <li><Link href="/students" className="hover:text-white transition-colors">How It Works</Link></li>
-                <li><Link href="/students" className="hover:text-white transition-colors">FAQs</Link></li>
+                <li><Link href="/explore" className="hover:text-white transition-colors">Verification Process</Link></li>
+                <li><Link href="/explore" className="hover:text-white transition-colors">Student Safety Guide</Link></li>
+                <li><Link href="/explore" className="hover:text-white transition-colors">How It Works</Link></li>
+                <li><Link href="/explore" className="hover:text-white transition-colors">FAQs</Link></li>
               </ul>
             </div>
 

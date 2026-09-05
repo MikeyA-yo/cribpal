@@ -130,21 +130,21 @@ export default function Navbar() {
         {/* Desktop Navigation Links */}
         <div className="hidden md:flex items-center gap-8">
           <Link
-            href="/students"
+            href="/explore"
             className="text-sm font-semibold text-white/80 hover:text-white transition-colors flex items-center gap-1.5"
           >
             <Compass className="w-4 h-4 text-[#50C9F2]" />
             Explore Hostels
           </Link>
           <Link
-            href="/students?search=UNILAG"
+            href="/explore?search=UNILAG"
             className="text-sm font-semibold text-white/80 hover:text-white transition-colors flex items-center gap-1.5"
           >
             <ShieldCheck className="w-4 h-4 text-[#10B981]" />
             Campuses
           </Link>
           <Link
-            href="/students"
+            href="/explore"
             className="text-sm font-semibold text-white/80 hover:text-white transition-colors flex items-center gap-1.5"
           >
             <Sparkles className="w-4 h-4 text-[#50C9F2]" />
@@ -210,9 +210,15 @@ export default function Navbar() {
               </div>
             </div>
           ) : (
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-4">
               <Link
-                href="/students"
+                href="/login"
+                className="text-sm font-semibold text-white/80 hover:text-white transition-colors"
+              >
+                Sign In
+              </Link>
+              <Link
+                href="/explore"
                 className="px-5 py-2.5 rounded-full font-bold text-sm bg-[#007BFF] hover:bg-[#0062cc] text-white shadow-md shadow-[#007BFF]/30 hover:scale-105 transition-all flex items-center gap-1.5"
               >
                 <span>Find a Crib</span>
@@ -299,7 +305,7 @@ export default function Navbar() {
               {/* Navigation Links with Icons */}
               <div className="space-y-1 pt-1">
                 <Link
-                  href="/students"
+                  href="/explore"
                   onClick={() => setOpen(false)}
                   className="flex items-center justify-between p-3.5 rounded-2xl hover:bg-white/10 text-white transition-colors group"
                 >
@@ -316,7 +322,7 @@ export default function Navbar() {
                 </Link>
 
                 <Link
-                  href="/students?search=UNILAG"
+                  href="/explore?search=UNILAG"
                   onClick={() => setOpen(false)}
                   className="flex items-center justify-between p-3.5 rounded-2xl hover:bg-white/10 text-white transition-colors group"
                 >
@@ -333,7 +339,7 @@ export default function Navbar() {
                 </Link>
 
                 <Link
-                  href="/students"
+                  href="/explore"
                   onClick={() => setOpen(false)}
                   className="flex items-center justify-between p-3.5 rounded-2xl hover:bg-white/10 text-white transition-colors group"
                 >
@@ -353,7 +359,7 @@ export default function Navbar() {
               {/* Action Buttons */}
               <div className="pt-2 border-t border-white/10 space-y-2.5">
                 <Link
-                  href="/students"
+                  href="/explore"
                   onClick={() => setOpen(false)}
                   className="w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-2xl bg-[#007BFF] hover:bg-[#0062cc] text-white font-bold text-sm shadow-lg shadow-[#007BFF]/30 transition-all"
                 >
@@ -361,7 +367,7 @@ export default function Navbar() {
                   <ArrowRight className="w-4 h-4" />
                 </Link>
 
-                {session?.user && (
+                {session?.user ? (
                   <button
                     onClick={handleSignOut}
                     className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-2xl bg-red-500/10 hover:bg-red-500/20 text-red-300 border border-red-500/20 font-bold text-sm transition-colors cursor-pointer"
@@ -369,6 +375,14 @@ export default function Navbar() {
                     <LogOut className="w-4 h-4" />
                     Sign Out
                   </button>
+                ) : (
+                  <Link
+                    href="/login"
+                    onClick={() => setOpen(false)}
+                    className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-2xl bg-white/10 hover:bg-white/15 text-white border border-white/15 font-bold text-xs transition-colors"
+                  >
+                    <span>Student Sign In</span>
+                  </Link>
                 )}
               </div>
 
