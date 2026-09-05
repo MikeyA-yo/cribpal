@@ -1,556 +1,260 @@
 "use client";
-import React, { useState } from "react";
-import { motion } from "motion/react";
-import { CheckCircle, MapPin, Heart, Eye, Search, Filter, X, DollarSign, Star } from "lucide-react";
-import { useExploreHostels } from "@/hooks/useExploreHostels";
-import { useRouter } from "next/navigation";
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "motion/react";
+import { Search, MapPin, Eye, Filter, X, Zap, Wifi, Shield, DollarSign, Bed } from "lucide-react";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 
-// Price formatting function
-function formatPrice(price: number): string {
-  return `₦${price.toLocaleString()}/year`;
+interface Hostel {
+  _id: string;
+  name: string;
+  address: string;
+  price: number;
+  location: string;
+  features: string[];
+  images?: string[];
+  other: string;
+  views: number;
 }
 
-const availableFeatures = [
-  "Electricity", "Water", "WiFi", "Parking", "Security", "Laundry", 
-  "Gym", "Study Room", "Amenities", "Male Only", "Female Only"
-];
-
 export default function Explore() {
-  const router = useRouter();
-  const { hostels, loading, error, filters, applyFilters, clearFilters } = useExploreHostels();
+  const searchParams = useSearchParams();
+  const [hostels, setHostels] = useState<Hostel[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [savedHostels, setSavedHostels] = useState<string[]>([]);
-  const [hostelImages, setHostelImages] = useState<{[key: string]: string}>({});
-  const [hostelRatings, setHostelRatings] = useState<{[key: string]: {averageRating: number, totalRatings: number}}>({});
   const [showFilters, setShowFilters] = useState(false);
-  const [savingHostel, setSavingHostel] = useState<string | null>(null);
-  const [tempFilters, setTempFilters] = useState({
-    minPrice: "",
-    maxPrice: "",
-    features: [] as string[],
-  });
+  const [tempFilters, setTempFilters] = useState({ minPrice: "", maxPrice: "", features: [] as string[] });
+  
+  const allFeatures = ["WiFi", "Electricity", "Water", "Security", "AC", "Gym", "Study Room", "Parking"];
 
-  // Fallback dummy data for when backend fails
-  const dummyHostels = [
-    {
-      _id: "dummy1",
-      name: "Golden View Hostel",
-      address: "8, Akoka Road, Yaba, Lagos",
-      price: 280000,
-      location: "https://maps.google.com/maps?q=6.5244,3.3792&z=15&output=embed",
-      images: ["/room3.jpg"],
-      features: ["Electricity", "Water", "WiFi", "Parking", "Amenities"],
-      other: "0.8km from campus, 6 rooms available",
-      managerId: "dummy",
-      isActive: true,
-      isVerified: true,
-      views: 120,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-    {
-      _id: "dummy2",
-      name: "Emerald Heights",
-      address: "15, University Road, Akoka, Lagos",
-      price: 320000,
-      location: "https://maps.google.com/maps?q=6.5201,3.3856&z=15&output=embed",
-      images: ["/room4.jpg"],
-      features: ["Electricity", "Water", "Female Only", "WiFi", "Security"],
-      other: "0.5km from campus, 3 rooms available",
-      managerId: "dummy",
-      isActive: true,
-      isVerified: true,
-      views: 85,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-    {
-      _id: "dummy3",
-      name: "Royal Castle Hostel",
-      address: "22, Herbert Macaulay Way, Yaba, Lagos",
-      price: 380000,
-      location: "https://maps.google.com/maps?q=6.5095,3.3757&z=15&output=embed",
-      images: ["/room5.jpg"],
-      features: ["Electricity", "Water", "Male Only", "WiFi", "Parking", "Gym"],
-      other: "1.2km from campus, 8 rooms available",
-      managerId: "dummy",
-      isActive: true,
-      isVerified: true,
-      views: 150,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-    {
-      _id: "dummy4",
-      name: "BlueBay Student Lodge",
-      address: "5, Randle Avenue, Yaba, Lagos",
-      price: 260000,
-      location: "https://maps.google.com/maps?q=6.5156,3.3798&z=15&output=embed",
-      images: ["/room6.jpg"],
-      features: ["Electricity", "Water", "WiFi", "Study Room"],
-      other: "0.9km from campus, 12 rooms available",
-      managerId: "dummy",
-      isActive: true,
-      isVerified: true,
-      views: 95,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-    {
-      _id: "dummy5",
-      name: "Sunset Paradise",
-      address: "30, Folagbade Street, Yaba, Lagos",
-      price: 340000,
-      location: "https://maps.google.com/maps?q=6.5123,3.3734&z=15&output=embed",
-      images: ["/room7.jpg"],
-      features: ["Electricity", "Water", "WiFi", "Parking", "Laundry", "Security"],
-      other: "1.0km from campus, 5 rooms available",
-      managerId: "dummy",
-      isActive: true,
-      isVerified: true,
-      views: 200,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-  ];
-
-  // Use backend data if available, otherwise use dummy data
-  const displayHostels = hostels.length > 0 ? hostels : (error ? dummyHostels : []);
-
-  // Load saved hostels on component mount
-  React.useEffect(() => {
-    loadSavedHostels();
-  }, []);
-
-  // Load images and ratings when hostels change
-  React.useEffect(() => {
-    if (displayHostels.length > 0) {
-      fetchHostelImages();
-      fetchHostelRatings();
-    }
-  }, [hostels]);
-
-  const fetchHostelImages = async () => {
-    const imagePromises = displayHostels.map(async (hostel) => {
-      try {
-        const imageResponse = await fetch(`/api/hostels/${hostel._id}/images`);
-        const imageResult = await imageResponse.json();
-        
-        if (imageResult.success && imageResult.image) {
-          return { hostelId: hostel._id, imageUrl: imageResult.image.dataUrl };
-        }
-        return { hostelId: hostel._id, imageUrl: null };
-      } catch (error) {
-        console.error(`Failed to fetch image for hostel ${hostel._id}:`, error);
-        return { hostelId: hostel._id, imageUrl: null };
-      }
-    });
-    
-    const imageResults = await Promise.all(imagePromises);
-    const imageMap: {[key: string]: string} = {};
-    
-    imageResults.forEach(result => {
-      if (result.imageUrl) {
-        imageMap[result.hostelId] = result.imageUrl;
-      }
-    });
-    
-    setHostelImages(imageMap);
-  };
-
-  const fetchHostelRatings = async () => {
-    const ratingPromises = displayHostels.map(async (hostel) => {
-      try {
-        const ratingResponse = await fetch(`/api/hostels/${hostel._id}/ratings`);
-        const ratingResult = await ratingResponse.json();
-        
-        if (ratingResult.success) {
-          return { 
-            hostelId: hostel._id, 
-            averageRating: ratingResult.data.averageRating || 0,
-            totalRatings: ratingResult.data.totalRatings || 0
-          };
-        }
-        return { hostelId: hostel._id, averageRating: 0, totalRatings: 0 };
-      } catch (error) {
-        console.error(`Failed to fetch ratings for hostel ${hostel._id}:`, error);
-        return { hostelId: hostel._id, averageRating: 0, totalRatings: 0 };
-      }
-    });
-    
-    const ratingResults = await Promise.all(ratingPromises);
-    const ratingMap: {[key: string]: {averageRating: number, totalRatings: number}} = {};
-    
-    ratingResults.forEach(result => {
-      ratingMap[result.hostelId] = {
-        averageRating: result.averageRating,
-        totalRatings: result.totalRatings
-      };
-    });
-    
-    setHostelRatings(ratingMap);
-  };
-
-  const loadSavedHostels = async () => {
+  const fetchHostels = async (filters: any = {}) => {
     try {
-      const response = await fetch('/api/user/saved-hostels');
-      const result = await response.json();
-      
-      if (result.success) {
-        setSavedHostels(result.lovedHostels || []);
+      setLoading(true);
+      const params = new URLSearchParams();
+      if (filters.search) params.append('search', filters.search);
+      if (filters.minPrice) params.append('minPrice', filters.minPrice);
+      if (filters.maxPrice) params.append('maxPrice', filters.maxPrice);
+      if (filters.features && filters.features.length) params.append('features', filters.features.join(','));
+
+      const res = await fetch(`/api/hostels/explore?${params.toString()}`);
+      const data = await res.json();
+      if (data.success) {
+        setHostels(data.hostels);
       }
     } catch (error) {
-      console.error('Error loading saved hostels:', error);
-    }
-  };
-
-  const toggleSave = async (hostelId: string) => {
-    if (savingHostel) return; // Prevent multiple simultaneous requests
-    
-    setSavingHostel(hostelId);
-    const isCurrentlySaved = savedHostels.includes(hostelId);
-    const action = isCurrentlySaved ? 'unsave' : 'save';
-    
-    try {
-      const response = await fetch('/api/user/saved-hostels', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          hostelId,
-          action
-        })
-      });
-
-      const result = await response.json();
-      
-      if (result.success) {
-        setSavedHostels(result.lovedHostels || []);
-      } else {
-        console.error('Error saving hostel:', result.error);
-        // Optionally show error message to user
-      }
-    } catch (error) {
-      console.error('Error toggling hostel save:', error);
-      // Optionally show error message to user
+      console.error(error);
     } finally {
-      setSavingHostel(null);
+      setLoading(false);
     }
   };
 
-  const handleSearch = async (value: string) => {
-    setSearchTerm(value);
-    await applyFilters({
-      ...filters,
-      search: value.trim() || undefined,
-    });
+  useEffect(() => {
+    const q = searchParams?.get('search') || '';
+    const max = searchParams?.get('maxPrice') || '';
+    const min = searchParams?.get('minPrice') || '';
+    if (q || max || min) {
+      setSearchTerm(q);
+      setTempFilters(prev => ({ ...prev, maxPrice: max, minPrice: min }));
+      fetchHostels({ search: q, maxPrice: max, minPrice: min });
+    } else {
+      fetchHostels();
+    }
+  }, [searchParams]);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    fetchHostels({ search: searchTerm, ...tempFilters });
   };
 
-  const handleApplyFilters = async () => {
-    const newFilters = {
-      ...filters,
-      search: searchTerm.trim() || undefined,
-      minPrice: tempFilters.minPrice && !isNaN(parseInt(tempFilters.minPrice)) ? parseInt(tempFilters.minPrice) : undefined,
-      maxPrice: tempFilters.maxPrice && !isNaN(parseInt(tempFilters.maxPrice)) ? parseInt(tempFilters.maxPrice) : undefined,
-      features: tempFilters.features && tempFilters.features.length > 0 ? tempFilters.features : undefined,
-    };
-    
-    await applyFilters(newFilters);
-    setShowFilters(false);
-  };
-
-  const handleClearFilters = async () => {
-    setTempFilters({
-      minPrice: "",
-      maxPrice: "",
-      features: [],
-    });
-    setSearchTerm("");
-    await clearFilters();
+  const applyFilters = () => {
+    fetchHostels({ search: searchTerm, ...tempFilters });
     setShowFilters(false);
   };
 
   const toggleFeature = (feature: string) => {
     setTempFilters(prev => ({
       ...prev,
-      features: prev.features.includes(feature)
-        ? prev.features.filter(f => f !== feature)
-        : [...prev.features, feature]
+      features: prev.features.includes(feature) ? prev.features.filter(f => f !== feature) : [...prev.features, feature]
     }));
   };
 
-  const getImageUrl = (hostel: any) => {
-    // First check if we have a fetched image from the database
-    if (hostelImages[hostel._id]) {
-      return hostelImages[hostel._id];
-    }
-    
-    // Fallback to random room image
-    return `/room${Math.floor(Math.random() * 8) + 1}.jpg`;
-  };
-
-  const filteredHostels = displayHostels.filter(hostel =>
-    hostel.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    hostel.address.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const formatPrice = (price: number) => `₦${price.toLocaleString()}/year`;
 
   return (
-    <div className="p-4 md:p-8">
-      {/* Header */}
-      <div className="mb-8">
-        <h2 className="text-2xl md:text-3xl font-bold text-blue-900 mb-4">Explore Hostels</h2>
-        
-        {/* Search and Filter Bar */}
-        <div className="flex flex-col sm:flex-row gap-4 mb-6">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-            <input
-              type="text"
-              placeholder="Search hostels by name or location..."
+    <div className="min-h-screen bg-offWhite py-12 px-4 md:px-8 relative overflow-hidden">
+      {/* Decorative Background */}
+      <div className="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] rounded-full bg-skyBlue/20 blur-3xl z-0 pointer-events-none"></div>
+      <div className="absolute bottom-[-10%] right-[-10%] w-[600px] h-[600px] rounded-full bg-primary/10 blur-3xl z-0 pointer-events-none"></div>
+
+      <div className="max-w-7xl mx-auto relative z-10">
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center mb-12"
+        >
+          <h1 className="text-4xl md:text-5xl font-extrabold text-darkBlue mb-4 tracking-tight">
+            Discover Your Perfect Space
+          </h1>
+          <p className="text-lg text-graphite/80 max-w-2xl mx-auto">
+            Browse through premium, verified student accommodations tailored just for you.
+          </p>
+        </motion.div>
+
+        {/* Search Bar */}
+        <div className="bg-white/70 backdrop-blur-xl border border-white/40 shadow-xl rounded-full p-2 max-w-3xl mx-auto flex items-center mb-12 transform hover:scale-[1.01] transition-transform duration-300">
+          <form onSubmit={handleSearch} className="flex-1 flex items-center pl-4">
+            <Search className="w-5 h-5 text-primary" />
+            <input 
+              type="text" 
+              placeholder="Search by name, address, or location..."
               value={searchTerm}
-              onChange={(e) => handleSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full bg-transparent border-none focus:ring-0 outline-none px-4 py-3 text-darkBlue placeholder-gray-400 font-medium"
             />
-          </div>
+          </form>
           <button 
             onClick={() => setShowFilters(!showFilters)}
-            className="flex items-center gap-2 px-6 py-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition"
+            className="flex items-center gap-2 px-6 py-3 bg-gray-100 hover:bg-gray-200 rounded-full text-darkBlue font-semibold transition"
           >
-            <Filter className="w-5 h-5" />
-            Filters
-            {(filters.minPrice || filters.maxPrice || (filters.features && filters.features.length > 0)) && (
-              <span className="bg-blue-500 text-white text-xs rounded-full px-2 py-1 ml-1">
-                {[
-                  filters.minPrice && "Min",
-                  filters.maxPrice && "Max", 
-                  filters.features && filters.features.length > 0 && `${filters.features.length} features`
-                ].filter(Boolean).length}
-              </span>
-            )}
+            <Filter className="w-4 h-4" /> Filters
+          </button>
+          <button 
+            onClick={handleSearch}
+            className="ml-2 bg-primary hover:bg-blue-600 text-white px-8 py-3 rounded-full font-bold shadow-md hover:shadow-lg transition-all"
+          >
+            Search
           </button>
         </div>
 
-        {/* Filter Panel */}
-        {showFilters && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="bg-white border border-gray-200 rounded-lg p-6 mb-6 shadow-sm"
-          >
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">Filter Hostels</h3>
-              <button
-                onClick={() => setShowFilters(false)}
-                className="text-gray-400 hover:text-gray-600"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {/* Price Range */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  <DollarSign className="w-4 h-4 inline mr-1" />
-                  Price Range (₦/year)
-                </label>
-                <div className="grid grid-cols-2 gap-2">
-                  <input
-                    type="number"
-                    placeholder="Min price"
-                    value={tempFilters.minPrice}
-                    onChange={(e) => setTempFilters(prev => ({ ...prev, minPrice: e.target.value }))}
-                    className="px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-sm"
-                  />
-                  <input
-                    type="number"
-                    placeholder="Max price"
-                    value={tempFilters.maxPrice}
-                    onChange={(e) => setTempFilters(prev => ({ ...prev, maxPrice: e.target.value }))}
-                    className="px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-sm"
-                  />
-                </div>
-              </div>
-
-              {/* Features */}
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Features & Amenities
-                </label>
-                <div className="flex flex-wrap gap-2">
-                  {availableFeatures.map((feature) => (
-                    <button
-                      key={feature}
-                      onClick={() => toggleFeature(feature)}
-                      className={`px-3 py-1.5 rounded-full text-sm font-medium transition ${
-                        tempFilters.features.includes(feature)
-                          ? 'bg-blue-500 text-white'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                      }`}
-                    >
-                      {feature}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Filter Actions */}
-            <div className="flex gap-3 mt-6 pt-4 border-t border-gray-200">
-              <button
-                onClick={handleApplyFilters}
-                className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition font-medium"
-              >
-                Apply Filters
-              </button>
-              <button
-                onClick={handleClearFilters}
-                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium"
-              >
-                Clear All
-              </button>
-            </div>
-          </motion.div>
-        )}
-
-        {/* Results Summary */}
-        <div className="flex items-center justify-between text-gray-600 mb-4">
-          <div>
-            {loading ? (
-              "Loading hostels..."
-            ) : error && displayHostels.length === 0 ? (
-              "Using demo data - backend unavailable"
-            ) : (
-              `Showing ${filteredHostels.length} of ${displayHostels.length} available hostels`
-            )}
-          </div>
-          {error && !loading && (
-            <div className="text-orange-600 text-sm">
-              ⚠️ Demo mode - {error}
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Hostels Grid */}
-      {loading ? (
-        <div className="flex flex-col items-center justify-center h-64 text-gray-500">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mb-4"></div>
-          <div className="text-lg font-semibold mb-2">Loading hostels...</div>
-          <div className="text-sm">Please wait while we fetch available hostels.</div>
-        </div>
-      ) : filteredHostels.length === 0 ? (
-        <div className="flex flex-col items-center justify-center h-64 text-gray-500">
-          <span className="text-5xl mb-4">🔍</span>
-          <div className="text-lg font-semibold mb-2">No hostels found</div>
-          <div className="text-sm">Try adjusting your search terms or filters.</div>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredHostels.map((hostel, idx) => (
-            <motion.div
-              key={hostel._id}
-              className="bg-white rounded-xl shadow-md hover:shadow-xl transition overflow-hidden flex flex-col"
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.1, duration: 0.5 }}
+        {/* Filters Panel */}
+        <AnimatePresence>
+          {showFilters && (
+            <motion.div 
+              initial={{ opacity: 0, height: 0, y: -20 }}
+              animate={{ opacity: 1, height: "auto", y: 0 }}
+              exit={{ opacity: 0, height: 0, y: -20 }}
+              className="bg-white/80 backdrop-blur-xl shadow-2xl rounded-2xl p-6 mb-12 max-w-3xl mx-auto border border-white/50"
             >
-              {/* Image with Save Button */}
-              <div className="relative">
-                <img src={getImageUrl(hostel)} alt={hostel.name} className="w-full h-44 object-cover" />
-                <button
-                  onClick={() => toggleSave(hostel._id)}
-                  disabled={savingHostel === hostel._id}
-                  className={`absolute top-3 right-3 p-2 rounded-full shadow-lg transition ${
-                    savedHostels.includes(hostel._id)
-                      ? 'bg-red-500 text-white hover:bg-red-600'
-                      : 'bg-white text-gray-600 hover:bg-gray-100'
-                  } ${savingHostel === hostel._id ? 'opacity-50 cursor-not-allowed' : ''}`}
-                >
-                  {savingHostel === hostel._id ? (
-                    <div className="w-4 h-4 animate-spin rounded-full border-2 border-current border-t-transparent"></div>
-                  ) : (
-                    <Heart className={`w-4 h-4 ${savedHostels.includes(hostel._id) ? 'fill-current' : ''}`} />
-                  )}
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="font-bold text-darkBlue text-xl">Advanced Filters</h3>
+                <button onClick={() => setShowFilters(false)} className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 text-gray-500">
+                  <X className="w-4 h-4" />
                 </button>
-                
-                {/* Views Badge */}
-                <div className="absolute top-3 left-3 bg-green-500 text-white px-2 py-1 rounded-full text-xs font-semibold">
-                  👁️ {hostel.views || 0}
-                </div>
               </div>
-
-              <div className="p-4 flex-1 flex flex-col">
-                <div className="flex items-start justify-between mb-2">
-                  <div className="flex-1">
-                    <h3 className="text-lg font-bold text-blue-800 mb-1">{hostel.name}</h3>
-                    <div className="flex items-center gap-1 text-gray-600 text-sm mb-1">
-                      <MapPin className="w-4 h-4" />
-                      <span>{hostel.address}</span>
-                    </div>
-                    {/* Rating Display */}
-                    {hostelRatings[hostel._id] && hostelRatings[hostel._id].totalRatings > 0 && (
-                      <div className="flex items-center gap-1 text-yellow-600 text-sm">
-                        <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                        <span className="font-medium">{hostelRatings[hostel._id].averageRating}</span>
-                        <span className="text-gray-500">({hostelRatings[hostel._id].totalRatings})</span>
-                      </div>
-                    )}
+              <div className="grid md:grid-cols-2 gap-8">
+                <div>
+                  <label className="block text-sm font-bold text-graphite mb-3 flex items-center gap-2">
+                    <DollarSign className="w-4 h-4 text-green-500" /> Price Range
+                  </label>
+                  <div className="flex gap-4">
+                    <input type="number" placeholder="Min" value={tempFilters.minPrice} onChange={e => setTempFilters({...tempFilters, minPrice: e.target.value})} className="w-full px-4 py-2 rounded-lg bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-primary outline-none" />
+                    <input type="number" placeholder="Max" value={tempFilters.maxPrice} onChange={e => setTempFilters({...tempFilters, maxPrice: e.target.value})} className="w-full px-4 py-2 rounded-lg bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-primary outline-none" />
                   </div>
                 </div>
-
-                <div className="text-blue-700 font-semibold text-lg mb-2">{formatPrice(hostel.price)}</div>
-                
-                {hostel.other && (
-                  <div className="text-green-600 text-sm font-medium mb-3">{hostel.other}</div>
-                )}
-
-                <div className="flex flex-wrap gap-2 mb-3">
-                  {hostel.features.slice(0, 4).map((feature) => (
-                    <span key={feature} className="bg-blue-50 text-blue-700 px-2 py-1 rounded text-xs flex items-center gap-1 border border-blue-100">
-                      <CheckCircle className="w-3 h-3" /> {feature}
-                    </span>
-                  ))}
-                  {hostel.features.length > 4 && (
-                    <span className="text-gray-500 text-xs px-2 py-1">
-                      +{hostel.features.length - 4} more
-                    </span>
-                  )}
-                </div>
-
-                <div className="flex gap-2 mt-auto">
-                  <button
-                    onClick={() => router.push(`/students/explore/${hostel._id}`)}
-                    className="flex-1 flex items-center justify-center gap-1 px-3 py-1.5 bg-blue-600 text-white rounded-md shadow hover:bg-blue-700 transition text-sm font-medium"
-                  >
-                    <Eye className="w-3 h-3" /> Details
-                  </button>
-                  <button
-                    onClick={() => toggleSave(hostel._id)}
-                    disabled={savingHostel === hostel._id}
-                    className={`px-3 py-1.5 rounded-md shadow transition text-sm font-medium ${
-                      savedHostels.includes(hostel._id)
-                        ? 'bg-green-600 text-white hover:bg-green-700'
-                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                    } ${savingHostel === hostel._id ? 'opacity-50 cursor-not-allowed' : ''}`}
-                  >
-                    {savingHostel === hostel._id ? (
-                      <div className="flex items-center gap-1">
-                        <div className="w-3 h-3 animate-spin rounded-full border-2 border-current border-t-transparent"></div>
-                        <span className="text-xs">Saving</span>
-                      </div>
-                    ) : (
-                      savedHostels.includes(hostel._id) ? 'Saved' : 'Save'
-                    )}
-                  </button>
+                <div>
+                  <label className="block text-sm font-bold text-graphite mb-3">Amenities</label>
+                  <div className="flex flex-wrap gap-2">
+                    {allFeatures.map(f => (
+                      <button 
+                        key={f}
+                        onClick={() => toggleFeature(f)}
+                        className={`px-3 py-1 text-sm font-medium rounded-full transition-colors ${tempFilters.features.includes(f) ? 'bg-primary text-white shadow-md' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+                      >
+                        {f}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
+              <div className="mt-8 flex justify-end gap-4">
+                <button onClick={() => { setTempFilters({minPrice: "", maxPrice: "", features: []}); fetchHostels(); setShowFilters(false); }} className="px-6 py-2 text-gray-500 font-semibold hover:bg-gray-100 rounded-lg transition">Clear All</button>
+                <button onClick={applyFilters} className="px-6 py-2 bg-darkBlue text-white font-bold rounded-lg shadow-md hover:bg-blue-900 transition">Apply Filters</button>
+              </div>
             </motion.div>
-          ))}
-        </div>
-      )}
+          )}
+        </AnimatePresence>
+
+        {/* Hostels Grid */}
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-20">
+            <div className="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin"></div>
+            <p className="mt-4 text-graphite font-medium">Fetching premium spaces...</p>
+          </div>
+        ) : hostels.length === 0 ? (
+          <div className="text-center py-20 bg-white/50 backdrop-blur-sm rounded-3xl border border-white">
+            <Bed className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+            <h3 className="text-2xl font-bold text-darkBlue mb-2">No Hostels Found</h3>
+            <p className="text-gray-500">We couldn't find any hostels matching your criteria. Try adjusting your filters.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {hostels.map((hostel, index) => (
+              <motion.div
+                key={hostel._id}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                className="bg-white rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-gray-100/50 overflow-hidden group cursor-pointer flex flex-col transform hover:-translate-y-1 transition-all duration-300"
+              >
+                <div className="h-56 relative overflow-hidden bg-gray-100">
+                  {hostel.images && hostel.images.length > 0 ? (
+                    <img 
+                      src={hostel.images[0]} 
+                      alt={hostel.name} 
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out" 
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-gray-300">No Image</div>
+                  )}
+                  {/* Floating Price Tag */}
+                  <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-md px-4 py-1.5 rounded-full shadow-lg">
+                    <span className="font-extrabold text-primary">{formatPrice(hostel.price)}</span>
+                  </div>
+                </div>
+                
+                <div className="p-6 flex-1 flex flex-col">
+                  <div className="mb-4">
+                    <h3 className="text-xl font-bold text-darkBlue mb-2 line-clamp-1 group-hover:text-primary transition-colors">{hostel.name}</h3>
+                    <div className="flex items-start gap-1 text-gray-500 text-sm">
+                      <MapPin className="w-4 h-4 flex-shrink-0 mt-0.5 text-skyBlue" />
+                      <span className="line-clamp-2">{hostel.address}, {hostel.location}</span>
+                    </div>
+                  </div>
+
+                  {/* Features Highlights */}
+                  <div className="flex flex-wrap gap-2 mb-6 h-[52px] overflow-hidden">
+                    {hostel.features.slice(0, 3).map(f => (
+                      <span key={f} className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-cloud text-graphite text-xs font-semibold">
+                        {f === 'Electricity' ? <Zap className="w-3 h-3 text-orange-500" /> : 
+                         f === 'WiFi' ? <Wifi className="w-3 h-3 text-blue-500" /> : 
+                         f === 'Security' ? <Shield className="w-3 h-3 text-green-500" /> : null}
+                        {f}
+                      </span>
+                    ))}
+                    {hostel.features.length > 3 && (
+                      <span className="px-3 py-1 rounded-full bg-gray-50 text-gray-500 text-xs font-medium border border-gray-100">
+                        +{hostel.features.length - 3}
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="mt-auto pt-4 border-t border-gray-100 flex items-center justify-between">
+                    <div className="flex items-center text-gray-400 text-sm font-medium">
+                      <Eye className="w-4 h-4 mr-1.5" /> {hostel.views || 0} views
+                    </div>
+                    <Link 
+                      href={`/students/${hostel._id}`} 
+                      className="px-5 py-2 bg-darkBlue text-white text-sm font-bold rounded-full hover:bg-primary hover:shadow-lg transition-all"
+                    >
+                      View Details
+                    </Link>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

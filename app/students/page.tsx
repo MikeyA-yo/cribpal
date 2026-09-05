@@ -1,23 +1,10 @@
-import StudentsGetStarted from "@/components/students/get-started";
-import { auth } from "@/lib/auth";
-import { redirect } from "next/navigation";
-import { headers } from "next/headers";
+import Explore from "@/components/students/explore";
+import { Suspense } from "react";
 
-export default async function Page() {
-    const session = await auth.api.getSession({ headers: await headers() });
-
-    if (!session?.user) {
-        redirect("/forstudents");
-    }
-
-    const user = session.user as any;
-    if (user.userType !== 'student') {
-        redirect('/hostelmanager');
-    }
-
-    return (
-        <>
-            <StudentsGetStarted user={user} />
-        </>
-    )
+export default function Page() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#F9FBFF] flex items-center justify-center text-darkBlue font-semibold">Loading CribPal Hostels...</div>}>
+      <Explore />
+    </Suspense>
+  );
 }
