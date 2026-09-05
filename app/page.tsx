@@ -1032,7 +1032,7 @@ export default function Home() {
               <ul className="space-y-2.5 text-sm text-white/70">
                 <li><Link href="/students" className="hover:text-white transition-colors">Verification Process</Link></li>
                 <li><Link href="/students" className="hover:text-white transition-colors">Student Safety Guide</Link></li>
-                <li><Link href="/admin" className="hover:text-white transition-colors">Admin Portal</Link></li>
+                <li><Link href="/students" className="hover:text-white transition-colors">How It Works</Link></li>
                 <li><Link href="/students" className="hover:text-white transition-colors">FAQs</Link></li>
               </ul>
             </div>

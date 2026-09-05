@@ -144,11 +144,11 @@ export default function Navbar() {
             Campuses
           </Link>
           <Link
-            href="/admin"
+            href="/students"
             className="text-sm font-semibold text-white/80 hover:text-white transition-colors flex items-center gap-1.5"
           >
-            <Lock className="w-4 h-4 text-white/60" />
-            Admin Portal
+            <Sparkles className="w-4 h-4 text-[#50C9F2]" />
+            How It Works
           </Link>
         </div>
 
@@ -333,17 +333,17 @@ export default function Navbar() {
                 </Link>
 
                 <Link
-                  href="/admin"
+                  href="/students"
                   onClick={() => setOpen(false)}
                   className="flex items-center justify-between p-3.5 rounded-2xl hover:bg-white/10 text-white transition-colors group"
                 >
                   <div className="flex items-center gap-3.5">
-                    <div className="w-9 h-9 rounded-xl bg-purple-500/20 text-purple-300 flex items-center justify-center group-hover:bg-purple-600 group-hover:text-white transition-colors">
-                      <Lock className="w-5 h-5" />
+                    <div className="w-9 h-9 rounded-xl bg-blue-500/20 text-[#50C9F2] flex items-center justify-center group-hover:bg-[#007BFF] group-hover:text-white transition-colors">
+                      <Sparkles className="w-5 h-5" />
                     </div>
                     <div>
-                      <span className="text-sm font-bold block">Admin Portal</span>
-                      <span className="text-xs text-white/60">List & manage hostel properties</span>
+                      <span className="text-sm font-bold block">How It Works</span>
+                      <span className="text-xs text-white/60">3 simple steps without agents</span>
                     </div>
                   </div>
                   <ChevronRight className="w-4 h-4 text-white/40 group-hover:text-white group-hover:translate-x-0.5 transition-all" />
@@ -361,7 +361,7 @@ export default function Navbar() {
                   <ArrowRight className="w-4 h-4" />
                 </Link>
 
-                {session?.user ? (
+                {session?.user && (
                   <button
                     onClick={handleSignOut}
                     className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-2xl bg-red-500/10 hover:bg-red-500/20 text-red-300 border border-red-500/20 font-bold text-sm transition-colors cursor-pointer"
@@ -369,14 +369,6 @@ export default function Navbar() {
                     <LogOut className="w-4 h-4" />
                     Sign Out
                   </button>
-                ) : (
-                  <Link
-                    href="/admin"
-                    onClick={() => setOpen(false)}
-                    className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-2xl bg-white/5 hover:bg-white/10 text-white/80 border border-white/10 font-bold text-xs transition-colors"
-                  >
-                    <span>Property Admin Login</span>
-                  </Link>
                 )}
               </div>
 
