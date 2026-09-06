@@ -25,8 +25,11 @@ import {
   Eye,
   SlidersHorizontal,
   Flame,
-  Clock,
-  Sparkles
+  Sparkles,
+  Video,
+  Mic,
+  Volume2,
+  Clock
 } from "lucide-react";
 
 interface Hostel {
@@ -39,6 +42,8 @@ interface Hostel {
   roomType?: string;
   features: string[];
   images: string[];
+  video?: string | null;
+  audio?: string | null;
   other?: string;
   views?: number;
   rating?: number;
@@ -181,6 +186,7 @@ function ExploreContent() {
   const [sortBy, setSortBy] = useState("recommended");
   const [selectedHostel, setSelectedHostel] = useState<Hostel | null>(null);
   const [activeModalImage, setActiveModalImage] = useState(0);
+  const [modalMediaTab, setModalMediaTab] = useState<"photos" | "video" | "audio">("photos");
 
   // Fetch from API with fallback
   useEffect(() => {
@@ -189,10 +195,11 @@ function ExploreContent() {
         const res = await fetch("/api/hostels/explore");
         const data = await res.json();
         if (data.success && data.hostels && data.hostels.length > 0) {
-          // Merge API hostels with fallback demo hostels
           const apiHostels = data.hostels.map((h: any, i: number) => ({
             ...h,
             images: h.images && h.images.length > 0 ? h.images : [`/room${(i % 8) + 1}.jpg`],
+            video: h.video || null,
+            audio: h.audio || null,
             distance: h.distance || "Walking distance to campus",
             rating: h.rating || 4.8,
             views: h.views || 120,
@@ -200,7 +207,7 @@ function ExploreContent() {
           setHostels(apiHostels);
         }
       } catch (err) {
-        console.warn("API fallback to static curated list:", err);
+        console.warn("API load error:", err);
       }
     }
     loadHostels();
@@ -461,6 +468,7 @@ function ExploreContent() {
                   onClick={() => {
                     setSelectedHostel(hostel);
                     setActiveModalImage(0);
+                    setModalMediaTab("photos");
                   }}
                 >
                   <Image
@@ -472,13 +480,23 @@ function ExploreContent() {
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-75" />
 
                   {/* Top Badges */}
-                  <div className="absolute top-3.5 left-3.5 flex items-center gap-1.5">
+                  <div className="absolute top-3.5 left-3.5 flex flex-wrap items-center gap-1.5 max-w-[78%]">
                     <span className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#10B981] text-white text-[11px] font-bold shadow-sm">
                       <ShieldCheck className="w-3.5 h-3.5" /> Verified
                     </span>
-                    <span className="px-2.5 py-1 rounded-lg bg-black/40 backdrop-blur-md text-white text-[11px] font-medium">
+                    <span className="px-2 py-1 rounded-lg bg-black/40 backdrop-blur-md text-white text-[11px] font-medium">
                       {hostel.roomType || "Studio"}
                     </span>
+                    {hostel.video && (
+                      <span className="flex items-center gap-1 px-2 py-0.5 rounded-lg bg-purple-600/90 backdrop-blur-md text-white text-[10px] font-bold shadow-sm">
+                        <Video className="w-3 h-3" /> Video Tour
+                      </span>
+                    )}
+                    {hostel.audio && (
+                      <span className="flex items-center gap-1 px-2 py-0.5 rounded-lg bg-emerald-600/90 backdrop-blur-md text-white text-[10px] font-bold shadow-sm">
+                        <Mic className="w-3 h-3" /> Voice Note
+                      </span>
+                    )}
                   </div>
 
                   <div className="absolute top-3.5 right-3.5 flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/95 backdrop-blur-md text-[#0B1E3F] text-xs font-bold shadow-sm">
@@ -500,6 +518,7 @@ function ExploreContent() {
                       onClick={() => {
                         setSelectedHostel(hostel);
                         setActiveModalImage(0);
+                        setModalMediaTab("photos");
                       }}
                       className="text-lg font-bold text-[#0B1E3F] group-hover:text-[#007BFF] transition-colors line-clamp-1 cursor-pointer"
                     >
@@ -540,9 +559,10 @@ function ExploreContent() {
                         onClick={() => {
                           setSelectedHostel(hostel);
                           setActiveModalImage(0);
+                          setModalMediaTab("photos");
                         }}
-                        className="px-3 py-2.5 rounded-xl bg-[#F9FBFF] hover:bg-[#E5E8EC] text-[#0B1E3F] text-xs font-bold border border-[#E5E8EC] transition-colors"
-                        title="View Details"
+                        className="px-3 py-2.5 rounded-xl bg-[#F9FBFF] hover:bg-[#E5E8EC] text-[#0B1E3F] text-xs font-bold border border-[#E5E8EC] transition-colors cursor-pointer"
+                        title="View Details & Media"
                       >
                         <Eye className="w-4 h-4" />
                       </button>
@@ -583,39 +603,115 @@ function ExploreContent() {
                 <X className="w-5 h-5" />
               </button>
 
-              {/* Modal Image Carousel */}
-              <div className="relative h-72 sm:h-80 w-full shrink-0 overflow-hidden bg-gray-900">
-                <Image
-                  src={selectedHostel.images?.[activeModalImage] || "/room1.jpg"}
-                  alt={selectedHostel.name}
-                  fill
-                  className="object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/20" />
+              {/* Media Switcher Bar */}
+              {(selectedHostel.video || selectedHostel.audio) && (
+                <div className="bg-[#0B1E3F] px-4 py-2 flex items-center gap-2 border-b border-white/10 z-10">
+                  <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mr-1">Media:</span>
+                  <button
+                    type="button"
+                    onClick={() => setModalMediaTab("photos")}
+                    className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                      modalMediaTab === "photos"
+                        ? "bg-white text-[#0B1E3F] shadow-sm"
+                        : "text-gray-300 hover:bg-white/10"
+                    }`}
+                  >
+                    Photos ({selectedHostel.images?.length || 1})
+                  </button>
 
-                {/* Thumbnails */}
-                {selectedHostel.images && selectedHostel.images.length > 1 && (
-                  <div className="absolute bottom-3 left-4 flex gap-2 z-10">
-                    {selectedHostel.images.map((img, idx) => (
-                      <button
-                        key={idx}
-                        onClick={() => setActiveModalImage(idx)}
-                        className={`w-12 h-12 rounded-xl overflow-hidden border-2 transition-all ${
-                          activeModalImage === idx ? "border-[#007BFF] scale-105" : "border-white/50 opacity-70"
-                        }`}
-                      >
-                        <Image src={img} alt="thumb" width={48} height={48} className="object-cover w-full h-full" />
-                      </button>
-                    ))}
-                  </div>
-                )}
+                  {selectedHostel.video && (
+                    <button
+                      type="button"
+                      onClick={() => setModalMediaTab("video")}
+                      className={`px-3 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                        modalMediaTab === "video"
+                          ? "bg-purple-600 text-white shadow-sm"
+                          : "text-purple-300 hover:bg-white/10"
+                      }`}
+                    >
+                      <Video className="w-3.5 h-3.5" />
+                      <span>Video Tour</span>
+                    </button>
+                  )}
 
-                <div className="absolute top-4 left-4 flex items-center gap-2">
-                  <span className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-[#10B981] text-white text-xs font-bold">
-                    <ShieldCheck className="w-4 h-4" /> 100% Physically Verified
-                  </span>
+                  {selectedHostel.audio && (
+                    <button
+                      type="button"
+                      onClick={() => setModalMediaTab("audio")}
+                      className={`px-3 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                        modalMediaTab === "audio"
+                          ? "bg-emerald-600 text-white shadow-sm"
+                          : "text-emerald-300 hover:bg-white/10"
+                      }`}
+                    >
+                      <Mic className="w-3.5 h-3.5" />
+                      <span>Audio Tour</span>
+                    </button>
+                  )}
                 </div>
-              </div>
+              )}
+
+              {/* Media Display Area */}
+              {modalMediaTab === "video" && selectedHostel.video ? (
+                <div className="relative h-72 sm:h-80 w-full shrink-0 overflow-hidden bg-black flex items-center justify-center">
+                  <video
+                    src={selectedHostel.video}
+                    controls
+                    autoPlay
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+              ) : modalMediaTab === "audio" && selectedHostel.audio ? (
+                <div className="relative h-72 sm:h-80 w-full shrink-0 overflow-hidden bg-gradient-to-br from-[#0B1E3F] to-[#007BFF] text-white flex flex-col items-center justify-center p-6 text-center">
+                  <div className="w-16 h-16 rounded-2xl bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 flex items-center justify-center mb-3 shadow-lg">
+                    <Mic className="w-8 h-8" />
+                  </div>
+                  <h4 className="font-extrabold text-base mb-1">Hostel Audio Walkthrough</h4>
+                  <p className="text-xs text-white/80 max-w-sm mb-4">
+                    Direct commentary covering water supply, electricity schedule, quiet hours, and environment.
+                  </p>
+                  <audio
+                    src={selectedHostel.audio}
+                    controls
+                    autoPlay
+                    className="w-full max-w-md rounded-xl"
+                  />
+                </div>
+              ) : (
+                /* Modal Image Carousel */
+                <div className="relative h-72 sm:h-80 w-full shrink-0 overflow-hidden bg-gray-900">
+                  <Image
+                    src={selectedHostel.images?.[activeModalImage] || "/room1.jpg"}
+                    alt={selectedHostel.name}
+                    fill
+                    className="object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/20" />
+
+                  {/* Thumbnails */}
+                  {selectedHostel.images && selectedHostel.images.length > 1 && (
+                    <div className="absolute bottom-3 left-4 flex gap-2 z-10">
+                      {selectedHostel.images.map((img, idx) => (
+                        <button
+                          key={idx}
+                          onClick={() => setActiveModalImage(idx)}
+                          className={`w-12 h-12 rounded-xl overflow-hidden border-2 transition-all cursor-pointer ${
+                            activeModalImage === idx ? "border-[#007BFF] scale-105" : "border-white/50 opacity-70"
+                          }`}
+                        >
+                          <Image src={img} alt="thumb" width={48} height={48} className="object-cover w-full h-full" />
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="absolute top-4 left-4 flex items-center gap-2">
+                    <span className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-[#10B981] text-white text-xs font-bold">
+                      <ShieldCheck className="w-4 h-4" /> 100% Physically Verified
+                    </span>
+                  </div>
+                </div>
+              )}
 
               {/* Modal Content */}
               <div className="p-6 sm:p-8 overflow-y-auto flex-1">
@@ -669,6 +765,39 @@ function ExploreContent() {
                     ))}
                   </div>
                 </div>
+
+                {/* Video Tour Quick Action */}
+                {selectedHostel.video && (
+                  <div className="mb-6 p-4 rounded-2xl bg-purple-50 border border-purple-200 flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-10 h-10 rounded-xl bg-purple-600 text-white flex items-center justify-center shrink-0">
+                        <Video className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <strong className="block text-xs text-[#0B1E3F]">Video Tour Walkthrough Available</strong>
+                        <span className="text-[11px] text-gray-500">Watch the room, bathroom, and kitchen walkthrough</span>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setModalMediaTab("video")}
+                      className="px-3.5 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold transition-all shrink-0 cursor-pointer"
+                    >
+                      Watch Video
+                    </button>
+                  </div>
+                )}
+
+                {/* Audio Walkthrough Voice Note */}
+                {selectedHostel.audio && (
+                  <div className="mb-6 p-4 rounded-2xl bg-emerald-50 border border-emerald-200">
+                    <div className="flex items-center gap-2 text-emerald-800 text-xs font-bold mb-2">
+                      <Mic className="w-4 h-4 text-emerald-600" />
+                      <span>Listen to Landlord / Admin Audio Walkthrough</span>
+                    </div>
+                    <audio src={selectedHostel.audio} controls className="w-full h-10" />
+                  </div>
+                )}
 
                 {/* Description */}
                 {selectedHostel.other && (

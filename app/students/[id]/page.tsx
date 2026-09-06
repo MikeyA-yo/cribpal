@@ -12,15 +12,20 @@ export default async function HostelDetailsPage({ params }: { params: Promise<{ 
   }
 
   if (!hostel) {
-    // Fallback demo hostel
+    // Fallback hostel
     hostel = {
       _id: id,
       name: "Emerald Court Luxury Suites",
       address: "St. Finbarr's College Road, Akoka",
       price: 380000,
       location: "UNILAG (Akoka, Lagos)",
-      features: ["24/7 Power", "WiFi", "Treated Water", "Security"],
-      images: ["/room1.jpg", "/room2.jpg"],
+      campusTag: "UNILAG",
+      roomType: "Self-Con Studio",
+      distance: "3 mins walk to Main Gate",
+      features: ["24/7 Solar Power", "WiFi", "Treated Water", "Uniformed Security", "AC"],
+      images: ["/room1.jpg", "/room2.jpg", "/room3.jpg"],
+      video: null,
+      audio: null,
       other: "3 mins walk to UNILAG Main Gate. 24/7 solar backup.",
       views: 184,
       createdAt: new Date(),

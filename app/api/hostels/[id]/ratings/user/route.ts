@@ -20,7 +20,7 @@ async function getDatabase() {
 // GET - Get user's rating for a specific hostel
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth.api.getSession({
@@ -34,7 +34,7 @@ export async function GET(
       );
     }
 
-    const hostelId = params.id;
+    const { id: hostelId } = await params;
     if (!hostelId || !ObjectId.isValid(hostelId)) {
       return NextResponse.json(
         { error: 'Invalid hostel ID' },

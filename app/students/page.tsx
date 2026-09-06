@@ -40,12 +40,11 @@ function StudentsDashboardContent() {
   const [paymentInitiated, setPaymentInitiated] = useState(false);
 
   useEffect(() => {
-    // Load local student session or initialize demo student
+    // Load student session or initialize default student profile
     let currentStudent = getLocalStudent();
     if (!currentStudent) {
-      // Auto initialize default demo student for easy testing
       currentStudent = {
-        id: "student-demo-01",
+        id: "student-active-01",
         name: "Tunde Bakare",
         email: "tunde.bakare@student.unilag.edu.ng",
         university: "University of Lagos (UNILAG)",
@@ -60,7 +59,6 @@ function StudentsDashboardContent() {
     if (storedHostel) {
       setReservedHostel(storedHostel);
     } else {
-      // Set a default active reservation demo
       setReservedHostel({
         id: "crib-1",
         name: "Emerald Court Luxury Suites",

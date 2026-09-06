@@ -20,7 +20,7 @@ async function getDatabase() {
 // POST - Upload image for a hostel
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth.api.getSession({
@@ -42,7 +42,7 @@ export async function POST(
       );
     }
 
-    const hostelId = params.id;
+    const { id: hostelId } = await params;
     if (!hostelId || !ObjectId.isValid(hostelId)) {
       return NextResponse.json(
         { error: 'Invalid hostel ID' },
@@ -128,10 +128,10 @@ export async function POST(
 // GET - Retrieve image for a hostel
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const hostelId = params.id;
+    const { id: hostelId } = await params;
     if (!hostelId || !ObjectId.isValid(hostelId)) {
       return NextResponse.json(
         { error: 'Invalid hostel ID' },
@@ -184,7 +184,7 @@ export async function GET(
 // DELETE - Remove image for a hostel
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth.api.getSession({
@@ -206,7 +206,7 @@ export async function DELETE(
       );
     }
 
-    const hostelId = params.id;
+    const { id: hostelId } = await params;
     if (!hostelId || !ObjectId.isValid(hostelId)) {
       return NextResponse.json(
         { error: 'Invalid hostel ID' },

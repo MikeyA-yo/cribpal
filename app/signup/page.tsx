@@ -86,22 +86,6 @@ function SignUpContent() {
               </p>
             </div>
 
-            {/* Quick Demo Access (for paused MongoDB) */}
-            <div className="mb-6 p-3.5 rounded-2xl bg-amber-50 border border-amber-200">
-              <div className="flex items-center gap-2 text-amber-800 text-xs font-bold mb-1.5">
-                <Sparkles className="w-4 h-4 text-amber-600 shrink-0" />
-                <span>MongoDB Cluster Paused (Demo Mode Active)</span>
-              </div>
-              <button
-                type="button"
-                onClick={() => completeSignUp("Aisha Mohammed (UI)", "aisha@student.ui.edu.ng")}
-                className="w-full py-2.5 px-3 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-sm transition-all flex items-center justify-center gap-1.5 cursor-pointer mt-1"
-              >
-                <span>⚡ 1-Click Instant Demo Account</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
-
             <form onSubmit={handleSubmit} className="space-y-3.5">
               <div>
                 <label className="text-xs font-bold text-[#0B1E3F] uppercase tracking-wider block mb-1">

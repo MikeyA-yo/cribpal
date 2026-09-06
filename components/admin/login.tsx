@@ -1,13 +1,15 @@
 "use client";
+
 import React, { useState } from "react";
-import { motion } from "motion/react";
-import { Eye, EyeOff, LogIn, Shield } from "lucide-react";
+import { motion } from "framer-motion";
+import { Eye, EyeOff, LogIn, ShieldCheck, Lock, Mail, Sparkles, Building2, ArrowRight } from "lucide-react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function AdminLogin() {
   const [formData, setFormData] = useState({
-    email: "",
-    password: "",
+    email: "ayomide@cribpal.admin",
+    password: "admin123",
   });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -32,14 +34,14 @@ export default function AdminLogin() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Login failed");
+        throw new Error(data.error || "Authentication failed");
       }
 
-      // Redirect to admin dashboard
-      router.push("/admin/dashboard");
+      // Redirect directly to admin hostels management
+      router.push("/admin/hostels");
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Login failed");
+      setError(err instanceof Error ? err.message : "Authentication failed");
     } finally {
       setLoading(false);
     }
@@ -52,21 +54,40 @@ export default function AdminLogin() {
     }));
   };
 
+  const setQuickAccount = (email: string) => {
+    setFormData({
+      email,
+      password: "admin123",
+    });
+    setError("");
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 via-white to-red-100 p-4">
+    <div className="min-h-screen flex flex-col justify-center items-center bg-[#F9FBFF] p-4 text-[#1E1E2F]">
+      
+      {/* Background Glow */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[550px] h-[550px] bg-gradient-to-tr from-[#007BFF]/10 to-[#50C9F2]/10 rounded-full blur-3xl" />
+      </div>
+
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md border border-red-100"
+        transition={{ duration: 0.45 }}
+        className="bg-white rounded-3xl shadow-xl shadow-[#0B1E3F]/8 p-8 md:p-10 w-full max-w-md border border-[#E5E8EC] relative z-10"
       >
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="bg-red-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Shield className="w-8 h-8 text-red-600" />
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-[#0B1E3F] to-[#007BFF] text-white flex items-center justify-center mx-auto mb-4 shadow-lg shadow-[#007BFF]/25">
+            <ShieldCheck className="w-8 h-8" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Admin Portal</h1>
-          <p className="text-gray-600">Sign in to access the admin dashboard</p>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#007BFF]/10 text-[#007BFF] text-xs font-bold mb-2">
+            <span>CribPal Administration</span>
+          </div>
+          <h1 className="text-2xl md:text-3xl font-black text-[#0B1E3F] tracking-tight">Admin Portal</h1>
+          <p className="text-xs md:text-sm text-gray-500 mt-1">
+            Sign in to manage verified hostels, video & audio tours
+          </p>
         </div>
 
         {/* Error Message */}
@@ -74,37 +95,69 @@ export default function AdminLogin() {
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6 text-sm"
+            className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-6 text-xs font-semibold"
           >
             {error}
           </motion.div>
         )}
 
+        {/* Quick Select Admin Credentials */}
+        <div className="mb-6 p-3.5 bg-[#F9FBFF] rounded-2xl border border-gray-100">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Quick Admin Select</span>
+            <span className="text-[10px] text-[#007BFF] font-semibold">Pass: admin123</span>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {[
+              { label: "Ayomide (Admin)", email: "ayomide@cribpal.admin" },
+              { label: "Admin Default", email: "admin@cribpal.com" },
+              { label: "Mikey (Admin)", email: "mikey@cribpal.admin" },
+            ].map((acc) => (
+              <button
+                key={acc.email}
+                type="button"
+                onClick={() => setQuickAccount(acc.email)}
+                className={`text-[11px] font-bold px-2.5 py-1.5 rounded-lg transition-all cursor-pointer ${
+                  formData.email === acc.email
+                    ? "bg-[#007BFF] text-white shadow-sm"
+                    : "bg-white text-gray-700 hover:bg-gray-100 border border-gray-200"
+                }`}
+              >
+                {acc.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
         {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-4">
           {/* Email */}
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-              Email Address
+            <label htmlFor="email" className="block text-xs font-bold text-[#0B1E3F] uppercase tracking-wider mb-1.5">
+              Admin Email
             </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition"
-              placeholder="Enter your admin email"
-            />
+            <div className="relative">
+              <Mail className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                required
+                className="w-full pl-10 pr-4 py-3 bg-[#F9FBFF] border border-[#E5E8EC] rounded-xl text-sm text-[#0B1E3F] font-medium focus:ring-2 focus:ring-[#007BFF]/20 focus:border-[#007BFF] outline-none transition"
+                placeholder="admin@cribpal.com"
+              />
+            </div>
           </div>
 
           {/* Password */}
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="password" className="block text-xs font-bold text-[#0B1E3F] uppercase tracking-wider mb-1.5">
               Password
             </label>
             <div className="relative">
+              <Lock className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
                 type={showPassword ? "text" : "password"}
                 id="password"
@@ -112,15 +165,15 @@ export default function AdminLogin() {
                 value={formData.password}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition"
-                placeholder="Enter your password"
+                className="w-full pl-10 pr-11 py-3 bg-[#F9FBFF] border border-[#E5E8EC] rounded-xl text-sm text-[#0B1E3F] font-medium focus:ring-2 focus:ring-[#007BFF]/20 focus:border-[#007BFF] outline-none transition"
+                placeholder="••••••••"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition"
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition cursor-pointer"
               >
-                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
           </div>
@@ -129,24 +182,28 @@ export default function AdminLogin() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-red-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center justify-center gap-2"
+            className="w-full bg-[#007BFF] hover:bg-[#0062cc] text-white py-3.5 px-4 rounded-xl font-bold text-sm shadow-md shadow-[#007BFF]/25 hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer mt-2 disabled:opacity-50"
           >
             {loading ? (
               <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
             ) : (
               <>
-                <LogIn className="w-5 h-5" />
-                Sign In
+                <LogIn className="w-4 h-4" />
+                <span>Access Admin Portal</span>
               </>
             )}
           </button>
         </form>
 
-        {/* Default Accounts Info */}
-        <div className="mt-8 p-4 bg-gray-50 rounded-lg">
-          <p className="text-xs text-gray-600 text-center">
-            For development: Use admin emails with default password "admin123"
-          </p>
+        {/* Explore link */}
+        <div className="text-center mt-6 pt-5 border-t border-gray-100">
+          <Link
+            href="/explore"
+            className="text-xs font-bold text-gray-500 hover:text-[#007BFF] transition inline-flex items-center gap-1"
+          >
+            <span>Return to Explore Hostels</span>
+            <ArrowRight className="w-3 h-3" />
+          </Link>
         </div>
       </motion.div>
     </div>

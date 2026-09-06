@@ -113,34 +113,6 @@ function LoginContent() {
               </p>
             </div>
 
-            {/* Instant Demo Access Button (Highlighted for paused MongoDB) */}
-            <div className="mb-6 p-4 rounded-2xl bg-amber-50 border border-amber-200">
-              <div className="flex items-center gap-2 text-amber-800 text-xs font-bold mb-2">
-                <Sparkles className="w-4 h-4 text-amber-600 shrink-0" />
-                <span>MongoDB Cluster Paused (Demo Mode Active)</span>
-              </div>
-              <p className="text-[11px] text-amber-700 mb-3 leading-relaxed">
-                Test the complete flow without database errors. Click below to sign in instantly as a verified student:
-              </p>
-              <button
-                type="button"
-                onClick={() => completeStudentLogin("Tunde Bakare (UNILAG)", "tunde@student.unilag.edu.ng")}
-                className="w-full py-3 px-4 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <span>⚡ 1-Click Demo Student Sign In</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
-
-            {/* Divider */}
-            <div className="relative flex py-2 items-center mb-6">
-              <div className="flex-grow border-t border-gray-200"></div>
-              <span className="flex-shrink mx-4 text-xs font-bold text-gray-400 uppercase">
-                Or enter details
-              </span>
-              <div className="flex-grow border-t border-gray-200"></div>
-            </div>
-
             {/* Form */}
             <form onSubmit={handleStandardSubmit} className="space-y-4">
               <div>
